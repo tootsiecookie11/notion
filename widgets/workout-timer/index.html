@@ -15,21 +15,23 @@
             <button class="tab-btn" data-tab="stopwatch">⏱️ Stopwatch</button>
         </div>
 
-        <!-- timer display (shared) -->
+        <!-- timer display -->
         <div class="timer-display">
             <div class="time" id="timerDisplay">20:00</div>
-            <div class="round-info" id="roundDisplay">round 0/0 · rest</div>
-            <div class="exercise-info" id="exerciseDisplay">exercise 1/4 · set 1/3</div>
+            <div class="round-info" id="roundDisplay">ready</div>
         </div>
+
+        <!-- workout structure info -->
+        <div class="structure-info" id="structureInfo"></div>
 
         <!-- presets tab content -->
         <div id="presetsTab" class="tab-content">
             <div class="preset-categories">
-                <span class="category-pill active" data-category="all">All</span>
-                <span class="category-pill" data-category="hiit">🔥 HIIT</span>
-                <span class="category-pill" data-category="strength">💪 Strength</span>
-                <span class="category-pill" data-category="cardio">🏃 Cardio</span>
-                <span class="category-pill" data-category="flex">🧘 Flex</span>
+                <span class="category-pill active" data-category="all">all</span>
+                <span class="category-pill" data-category="hiit">🔥 hiit</span>
+                <span class="category-pill" data-category="strength">💪 strength</span>
+                <span class="category-pill" data-category="cardio">🏃 cardio</span>
+                <span class="category-pill" data-category="flex">🧘 flex</span>
             </div>
 
             <div class="presets-grid" id="presetsGrid">
@@ -37,47 +39,109 @@
             </div>
         </div>
 
-        <!-- custom tab content (hidden by default) -->
+        <!-- custom tab content -->
         <div id="customTab" class="tab-content" style="display: none;">
             <div class="custom-panel">
-                <div class="input-row">
-                    <div class="input-group">
-                        <label>work (min:sec)</label>
-                        <div style="display: flex; gap: 0.3rem;">
-                            <input type="text" id="workMin" placeholder="00" value="00" maxlength="2"> :
-                            <input type="text" id="workSec" placeholder="30" value="30" maxlength="2">
+                <div class="custom-tabs">
+                    <button class="custom-tab-btn active" data-custom-type="rounds">🔄 rounds based</button>
+                    <button class="custom-tab-btn" data-custom-type="sets">🎯 sets based</button>
+                    <button class="custom-tab-btn" data-custom-type="simple">⏱️ simple</button>
+                </div>
+
+                <!-- rounds based (EMOM, Tabata style) -->
+                <div id="customRounds" class="custom-type-panel">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>rounds</label>
+                            <input type="number" id="customRounds" value="4" min="1" max="20">
+                        </div>
+                        <div class="input-group">
+                            <label>exercises/round</label>
+                            <input type="number" id="customExPerRound" value="4" min="1" max="20">
+                        </div>
+                        <div class="input-group">
+                            <label>sets/exercise</label>
+                            <input type="number" id="customSetsPerEx" value="2" min="1" max="10">
                         </div>
                     </div>
-                    <div class="input-group">
-                        <label>rest (sec)</label>
-                        <input type="number" id="restSec" placeholder="15" value="15" min="0" max="300">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>work (sec)</label>
+                            <input type="number" id="customWorkRounds" value="20" min="1" max="300">
+                        </div>
+                        <div class="input-group">
+                            <label>rest (sec)</label>
+                            <input type="number" id="customRestRounds" value="10" min="0" max="300">
+                        </div>
+                        <div class="input-group">
+                            <label>round break (sec)</label>
+                            <input type="number" id="customRoundBreak" value="30" min="0" max="600">
+                        </div>
                     </div>
                 </div>
-                <div class="input-row">
-                    <div class="input-group">
-                        <label>rounds</label>
-                        <input type="number" id="roundsTotal" placeholder="8" value="8" min="1">
+
+                <!-- sets based (HIIT, Circuit style) -->
+                <div id="customSets" class="custom-type-panel" style="display: none;">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>sets</label>
+                            <input type="number" id="customSets" value="3" min="1" max="20">
+                        </div>
+                        <div class="input-group">
+                            <label>exercises/set</label>
+                            <input type="number" id="customExPerSet" value="8" min="1" max="20">
+                        </div>
                     </div>
-                    <div class="input-group">
-                        <label>sets</label>
-                        <input type="number" id="setsTotal" placeholder="3" value="3" min="1">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>work (sec)</label>
+                            <input type="number" id="customWorkSets" value="40" min="1" max="300">
+                        </div>
+                        <div class="input-group">
+                            <label>rest (sec)</label>
+                            <input type="number" id="customRestSets" value="20" min="0" max="300">
+                        </div>
+                        <div class="input-group">
+                            <label>set break (sec)</label>
+                            <input type="number" id="customSetBreak" value="60" min="0" max="600">
+                        </div>
                     </div>
                 </div>
-                <div class="input-row">
-                    <div class="input-group">
-                        <label>set break (sec)</label>
-                        <input type="number" id="setBreakSec" placeholder="60" value="60" min="0">
+
+                <!-- simple (AMRAP, Warmup style) -->
+                <div id="customSimple" class="custom-type-panel" style="display: none;">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>work (min:sec)</label>
+                            <div style="display: flex; gap: 0.3rem;">
+                                <input type="text" id="customWorkMin" placeholder="00" value="20" maxlength="2"> :
+                                <input type="text" id="customWorkSec" placeholder="00" value="00" maxlength="2">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>rest (sec)</label>
+                            <input type="number" id="customRestSimple" value="0" min="0" max="300">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>rounds</label>
+                            <input type="number" id="customSimpleRounds" value="1" min="1" max="50">
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- stopwatch tab content (hidden) -->
+        <!-- stopwatch tab content -->
         <div id="stopwatchTab" class="tab-content" style="display: none;">
             <div class="stopwatch-panel">
                 <p>simple stopwatch — start when ready</p>
             </div>
         </div>
+
+        <!-- current exercise info -->
+        <div class="exercise-info" id="exerciseInfo"></div>
 
         <!-- control buttons -->
         <div class="controls">
@@ -85,7 +149,7 @@
             <button class="btn btn-secondary" id="pauseBtn">⏸ pause</button>
             <button class="btn btn-secondary" id="resetBtn">↺ reset</button>
         </div>
-        <div class="status-badge" id="statusMessage">ready · select a preset or set custom</div>
+        <div class="status-badge" id="statusMessage">ready · select a preset</div>
     </div>
 
     <script src="script.js"></script>
