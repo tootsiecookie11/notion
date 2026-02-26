@@ -2,9 +2,9 @@
     // ========== PRESET LIBRARY ==========
     const presets = [
         // category: hiit
-        { name: 'AMRAP', desc: '20 min · as many rounds', category: 'hiit', work: 20*60, rest: 0, rounds: 1, sets: 1, setBreak: 0, type: 'countdown' },
-        { name: 'EMOM', desc: '26 min · 4 groups, 40/20', category: 'hiit', work: 40, rest: 20, rounds: 8, sets: 4, setBreak: 30, type: 'interval' },
-        { name: 'Tabata', desc: '4 groups · 20/10', category: 'hiit', work: 20, rest: 10, rounds: 16, sets: 4, setBreak: 30, type: 'interval' },
+        { name: 'AMRAP', desc: '20 min', category: 'hiit', work: 20*60, rest: 0, rounds: 1, sets: 1, setBreak: 0, type: 'countdown' },
+        { name: 'EMOM', desc: '4 groups · 40/20', category: 'hiit', work: 40, rest: 20, rounds: 8, sets: 4, setBreak: 30, type: 'interval' },
+        { name: 'Tabata-style HIIT', desc: '4 groups · 20/10', category: 'hiit', work: 20, rest: 10, rounds: 16, sets: 4, setBreak: 30, type: 'interval' },
         { name: 'HIIT Intervals', desc: '2 sets · 55/15', category: 'hiit', work: 55, rest: 15, rounds: 10, sets: 2, setBreak: 60, type: 'interval' },
         { name: 'Circuit', desc: '3 sets · 40/20', category: 'strength', work: 40, rest: 20, rounds: 8, sets: 3, setBreak: 60, type: 'interval' },
         { name: 'Pyramid Ladder', desc: '4 ex · 9 rnds, 20→50→20', category: 'strength', work: 'pyramid', rest: 10, rounds: 9, sets: 1, setBreak: 0, type: 'pyramid' },
