@@ -10,7 +10,7 @@
         },
         { 
             name: 'EMOM', 
-            desc: '4 rounds · 3 sets x  2 exercises · 40s/20s work · 30s rnd break', 
+            desc: '4 rounds · 3 sets x 2 exercises · 40s/20s · 30s rnd break', 
             category: 'hiit',
             type: 'roundsBased',
             rounds: 4,
@@ -22,7 +22,7 @@
         },
         { 
             name: 'Tabata-style HIIT', 
-            desc: '4 rounds · 2 sets x 4 exercises · 20s/10s work · 30s rnd break', 
+            desc: '4 rounds · 2 sets x 4 exercises · 20s/10s · 30s rnd break', 
             category: 'hiit',
             type: 'roundsBased',
             rounds: 4,
@@ -34,7 +34,7 @@
         },
         { 
             name: 'HIIT Intervals', 
-            desc: '2 sets x 10 exercises · 55s/15s work · 60s set break', 
+            desc: '2 sets x 10 exercises · 55s/15s · 60s rnd break', 
             category: 'hiit',
             type: 'setsBased',
             sets: 2,
@@ -45,7 +45,7 @@
         },
         { 
             name: 'Circuit', 
-            desc: '3 sets x 8 exercises · 40s/20s work · 60s set break', 
+            desc: '3 sets x 8 exercises · 40s/20s · 60s rnd break', 
             category: 'strength',
             type: 'setsBased',
             sets: 3,
@@ -89,7 +89,7 @@
         },
         { 
             name: 'Warmup/Cooldown', 
-            desc: '45 sec work · 5 sec rest', 
+            desc: '45s work · 5s rest', 
             category: 'flex',
             type: 'simple',
             work: 45,
@@ -445,4 +445,283 @@
                         if (workout.currentRound <= workout.pyramidPeakRound) {
                             workout.workDuration = workout.pyramidBase + (workout.currentRound - 1) * 10;
                         } else {
-                            workout.workDuration = workout
+                            workout.workDuration = workout.pyramidPeak - (workout.currentRound - workout.pyramidPeakRound) * 10;
+                        }
+                        
+                        workout.phase = 'work';
+                        workout.timeLeft = workout.workDuration;
+                    } 
+                    else {
+                        // Workout complete
+                        stopTimer();
+                        statusMsg.innerText = '🎉 pyramid complete!';
+                        return;
+                    }
+                }
+            }
+        }
+        
+        else if (workout.type === 'density') {
+            if (workout.phase === 'work') {
+                // Block time is up, move to next exercise within block? 
+                // For density, each block is continuous work through exercises
+                if (workout.currentExercise < workout.totalExercises) {
+                    workout.currentExercise++;
+                    workout.timeLeft = workout.workDuration; // Reset block timer? No, block continues
+                    // Actually for density, it's continuous, so we don't change timeLeft
+                    // Just update the exercise display
+                } else {
+                    // All exercises in block done
+                    if (workout.currentRound < workout.totalRounds) {
+                        workout.currentRound++;
+                        workout.currentExercise = 1;
+                        workout.phase = 'roundBreak';
+                        workout.timeLeft = workout.breakDuration;
+                    } else {
+                        stopTimer();
+                        statusMsg.innerText = '🎉 density complete!';
+                        return;
+                    }
+                }
+            } else if (workout.phase === 'roundBreak') {
+                workout.phase = 'work';
+                workout.timeLeft = workout.workDuration;
+            }
+        }
+        
+        else if (workout.type === 'simple') {
+            if (workout.phase === 'work') {
+                if (workout.restDuration > 0) {
+                    workout.phase = 'rest';
+                    workout.timeLeft = workout.restDuration;
+                } else if (workout.currentRound < workout.totalRounds) {
+                    workout.currentRound++;
+                    workout.timeLeft = workout.workDuration;
+                } else {
+                    stopTimer();
+                    statusMsg.innerText = '✅ complete!';
+                    return;
+                }
+            } else if (workout.phase === 'rest') {
+                if (workout.currentRound < workout.totalRounds) {
+                    workout.currentRound++;
+                    workout.phase = 'work';
+                    workout.timeLeft = workout.workDuration;
+                } else {
+                    stopTimer();
+                    statusMsg.innerText = '✅ complete!';
+                    return;
+                }
+            }
+        }
+        
+        updateDisplay();
+        updateInfoDisplays();
+    }
+
+    function startTimer() {
+        if (isRunning) return;
+        if (timerInterval) clearInterval(timerInterval);
+        isRunning = true;
+        statusMsg.innerText = '▶ running';
+
+        timerInterval = setInterval(() => {
+            if (workout.timeLeft <= 0) {
+                nextPhase();
+            } else {
+                workout.timeLeft--;
+                updateDisplay();
+            }
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        if (!isRunning) return;
+        clearInterval(timerInterval);
+        timerInterval = null;
+        isRunning = false;
+        statusMsg.innerText = '⏸ paused';
+    }
+
+    function resetTimer() {
+        stopTimer();
+        
+        if (currentMode === 'presets' && activePreset) {
+            loadPreset(activePreset);
+        } else if (currentMode === 'custom') {
+            loadCustomTimer();
+        } else if (currentMode === 'stopwatch') {
+            workout.timeLeft = 0;
+            workout.type = 'stopwatch';
+            roundDisplay.innerText = 'stopwatch';
+            exerciseInfo.innerText = '';
+            structureInfo.innerText = '';
+            updateDisplay();
+        }
+        
+        statusMsg.innerText = '↺ reset · ready';
+    }
+
+    function loadCustomTimer() {
+        // Determine which custom tab is active
+        const activeCustomTab = document.querySelector('.custom-tab-btn.active');
+        const customType = activeCustomTab ? activeCustomTab.dataset.customType : 'rounds';
+        
+        workout.type = customType;
+        
+        if (customType === 'rounds') {
+            workout.totalRounds = parseInt(customRounds.value) || 4;
+            workout.totalExercises = parseInt(customExPerRound.value) || 4;
+            workout.totalSets = parseInt(customSetsPerEx.value) || 2;
+            workout.currentRound = 1;
+            workout.currentExercise = 1;
+            workout.currentSet = 1;
+            workout.workDuration = parseInt(customWorkRounds.value) || 20;
+            workout.restDuration = parseInt(customRestRounds.value) || 10;
+            workout.breakDuration = parseInt(customRoundBreak.value) || 30;
+            workout.timeLeft = workout.workDuration;
+            workout.phase = 'work';
+            structureInfo.innerText = `${workout.totalRounds} rounds · ${workout.totalExercises} exercises · ${workout.totalSets} sets`;
+            
+        } else if (customType === 'sets') {
+            workout.totalSetGroups = parseInt(customSets.value) || 3;
+            workout.totalExercises = parseInt(customExPerSet.value) || 8;
+            workout.currentSetGroup = 1;
+            workout.currentExercise = 1;
+            workout.workDuration = parseInt(customWorkSets.value) || 40;
+            workout.restDuration = parseInt(customRestSets.value) || 20;
+            workout.breakDuration = parseInt(customSetBreak.value) || 60;
+            workout.timeLeft = workout.workDuration;
+            workout.phase = 'work';
+            structureInfo.innerText = `${workout.totalSetGroups} sets · ${workout.totalExercises} exercises each`;
+            
+        } else if (customType === 'simple') {
+            const workMins = parseInt(customWorkMin.value) || 0;
+            const workSecs = parseInt(customWorkSec.value) || 0;
+            workout.totalRounds = parseInt(customSimpleRounds.value) || 1;
+            workout.currentRound = 1;
+            workout.workDuration = (workMins * 60) + workSecs;
+            workout.restDuration = parseInt(customRestSimple.value) || 0;
+            workout.timeLeft = workout.workDuration;
+            workout.phase = 'work';
+            structureInfo.innerText = `${Math.floor(workout.workDuration/60)}:${(workout.workDuration%60).toString().padStart(2,'0')} work · ${workout.restDuration}s rest · ${workout.totalRounds} rounds`;
+        }
+        
+        updateDisplay();
+        updateInfoDisplays();
+        statusMsg.innerText = '✨ custom timer loaded';
+    }
+
+    // ========== EVENT LISTENERS ==========
+    
+    // Preset click
+    presetsGrid.addEventListener('click', (e) => {
+        const card = e.target.closest('.preset-card');
+        if (!card) return;
+        const presetData = card.dataset.preset;
+        if (!presetData) return;
+        try {
+            const preset = JSON.parse(presetData.replace(/&apos;/g, "'"));
+            loadPreset(preset);
+        } catch (err) { 
+            console.warn(err); 
+        }
+    });
+
+    // Category filter
+    categoryPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+            categoryPills.forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+            activeCategory = pill.dataset.category;
+            renderPresets(activeCategory);
+        });
+    });
+
+    // Tab switching
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tabBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const tab = btn.dataset.tab;
+            currentMode = tab;
+            
+            presetsTab.style.display = tab === 'presets' ? 'block' : 'none';
+            customTab.style.display = tab === 'custom' ? 'block' : 'none';
+            stopwatchTab.style.display = tab === 'stopwatch' ? 'block' : 'none';
+
+            stopTimer();
+            
+            if (tab === 'stopwatch') {
+                workout.type = 'stopwatch';
+                workout.timeLeft = 0;
+                roundDisplay.innerText = 'stopwatch';
+                exerciseInfo.innerText = '';
+                structureInfo.innerText = '';
+                statusMsg.innerText = '⏱️ stopwatch mode';
+                updateDisplay();
+            } else if (tab === 'custom') {
+                loadCustomTimer();
+            } else {
+                if (activePreset) loadPreset(activePreset);
+                else {
+                    renderPresets(activeCategory);
+                    statusMsg.innerText = 'ready · select a preset';
+                }
+            }
+        });
+    });
+
+    // Custom tab switching
+    customTabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            customTabBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const type = btn.dataset.customType;
+            
+            customRoundsPanel.style.display = type === 'rounds' ? 'block' : 'none';
+            customSetsPanel.style.display = type === 'sets' ? 'block' : 'none';
+            customSimplePanel.style.display = type === 'simple' ? 'block' : 'none';
+            
+            if (currentMode === 'custom') {
+                loadCustomTimer();
+            }
+        });
+    });
+
+    // Control buttons
+    startBtn.addEventListener('click', startTimer);
+    pauseBtn.addEventListener('click', pauseTimer);
+    resetBtn.addEventListener('click', resetTimer);
+
+    // Input validation for minutes/seconds
+    [customWorkMin, customWorkSec].forEach(input => {
+        input.addEventListener('input', function() {
+            let val = this.value.replace(/[^0-9]/g, '');
+            if (val.length > 2) val = val.slice(0, 2);
+            if (parseInt(val) > 59) val = '59';
+            this.value = val;
+        });
+    });
+
+    // Custom input change listeners
+    const customInputs = [
+        customRounds, customExPerRound, customSetsPerEx, customWorkRounds, customRestRounds, customRoundBreak,
+        customSets, customExPerSet, customWorkSets, customRestSets, customSetBreak,
+        customRestSimple, customSimpleRounds, customWorkMin, customWorkSec
+    ];
+    
+    customInputs.forEach(input => {
+        if (input) {
+            input.addEventListener('change', () => {
+                if (currentMode === 'custom') {
+                    loadCustomTimer();
+                }
+            });
+        }
+    });
+
+    // ========== INITIALIZATION ==========
+    renderPresets('all');
+    loadPreset(presets[0]); // Load AMRAP by default
+})();
