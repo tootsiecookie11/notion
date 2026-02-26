@@ -1,19 +1,106 @@
 (function() {
-    // ========== PRESET LIBRARY ==========
-    const presets = [
-        // category: hiit
-        { name: 'AMRAP', desc: '20 min', category: 'hiit', work: 20*60, rest: 0, rounds: 1, sets: 1, setBreak: 0, type: 'countdown' },
-        { name: 'EMOM', desc: '4 groups · 40/20', category: 'hiit', work: 40, rest: 20, rounds: 8, sets: 4, setBreak: 30, type: 'interval' },
-        { name: 'Tabata-style HIIT', desc: '4 groups · 20/10', category: 'hiit', work: 20, rest: 10, rounds: 16, sets: 4, setBreak: 30, type: 'interval' },
-        { name: 'HIIT Intervals', desc: '2 sets · 55/15', category: 'hiit', work: 55, rest: 15, rounds: 10, sets: 2, setBreak: 60, type: 'interval' },
-        { name: 'Circuit', desc: '3 sets · 40/20', category: 'strength', work: 40, rest: 20, rounds: 8, sets: 3, setBreak: 60, type: 'interval' },
-        { name: 'Pyramid Ladder', desc: '4 ex · 9 rnds, 20→50→20', category: 'strength', work: 'pyramid', rest: 10, rounds: 9, sets: 1, setBreak: 0, type: 'pyramid' },
-        { name: '3:1 Ratio', desc: '3 sets · 60/20, 90s break', category: 'hiit', work: 60, rest: 20, rounds: 6, sets: 3, setBreak: 90, type: 'interval' },
-        { name: 'Density Block', desc: '2 blocks x 10min', category: 'cardio', work: 10*60, rest: 0, rounds: 1, sets: 2, setBreak: 120, type: 'block' },
-        { name: 'Warmup Stretch', desc: '45 sec holds', category: 'flex', work: 45, rest: 5, rounds: 8, sets: 1, setBreak: 0, type: 'interval' },
-        { name: 'EMOM lite', desc: '16 min · 30/30', category: 'cardio', work: 30, rest: 30, rounds: 8, sets: 2, setBreak: 30, type: 'interval' },
-        { name: 'Quick Tabata', desc: '8 rounds · 20/10', category: 'hiit', work: 20, rest: 10, rounds: 8, sets: 1, setBreak: 0, type: 'interval' },
-    ];
+// ========== PRESET LIBRARY ==========
+const presets = [
+    // category: hiit
+    { 
+        name: 'AMRAP', 
+        desc: '20 mins.', 
+        category: 'hiit', 
+        type: 'amrap',
+        duration: 20 * 60, // 20 minutes total
+        rest: 0
+    },
+    { 
+        name: 'EMOM', 
+        desc: '4 rounds · 3 sets x 2 exercises · 40s/20s · 30s rnd break', 
+        category: 'hiit',
+        type: 'structured',
+        rounds: 4,                    // 4 rounds
+        exercisesPerRound: 2,          // 2 exercises each round
+        setsPerExercise: 3,            // 3 sets per exercise
+        work: 40,                      // 40 sec work
+        rest: 20,                      // 20 sec rest between exercises
+        roundBreak: 30,                 // 30 sec break between rounds
+        exercises: ['ex1', 'ex2']      // placeholder for exercise names
+    },
+    { 
+        name: 'Tabata-style HIIT', 
+        desc: '4 rounds · 2 sets x 4 exercises · 20s/10s · 30s rnd break', 
+        category: 'hiit',
+        type: 'structured',
+        rounds: 4,                    // 4 rounds
+        exercisesPerRound: 4,          // 4 exercises each round
+        setsPerExercise: 2,            // 2 sets per exercise
+        work: 20,                      // 20 sec work
+        rest: 10,                      // 10 sec rest between exercises/sets
+        roundBreak: 30                  // 30 sec break between rounds
+    },
+    { 
+        name: 'HIIT Intervals', 
+        desc: '2 sets x 10 exercises · 55s/15s · 60s set break', 
+        category: 'hiit',
+        type: 'structured',
+        sets: 2,                       // 2 sets
+        exercisesPerSet: 10,            // 10 exercises per set
+        work: 55,                       // 55 sec work
+        rest: 15,                       // 15 sec rest between exercises
+        setBreak: 60                     // 60 sec break between sets
+    },
+    { 
+        name: 'Circuit', 
+        desc: '3 sets x 8 exercises · 40s/20s · 60s set break', 
+        category: 'strength',
+        type: 'structured',
+        sets: 3,                       // 3 sets
+        exercisesPerSet: 8,             // 8 exercises per set
+        work: 40,                       // 40 sec work
+        rest: 20,                       // 20 sec rest between exercises
+        setBreak: 60                     // 60 sec break between sets
+    },
+    { 
+        name: 'Pyramid Ladder', 
+        desc: '9 rounds · 4 exercises · work 20s→50s→20s · 10s rest', 
+        category: 'strength',
+        type: 'pyramid',
+        rounds: 9,                      // 9 rounds
+        exercisesPerRound: 4,            // 4 exercises each round
+        rest: 10,                        // 10 sec rest between exercises
+        pyramidBase: 20,                 // starting work: 20 sec
+        pyramidPeak: 50,                 // peak work: 50 sec
+        pyramidPeakRound: 5               // peak at round 5
+    },
+    { 
+        name: '3:1 Ratio', 
+        desc: '3 rounds · 6 exercises · 60s/20s · 1 min. 30s round break', 
+        category: 'hiit',
+        type: 'structured',
+        rounds: 3,                       // 3 rounds
+        exercisesPerRound: 6,             // 6 exercises each round
+        work: 60,                         // 60 sec work
+        rest: 20,                         // 20 sec rest between exercises
+        roundBreak: 90                     // 90 sec break between rounds
+    },
+    { 
+        name: 'Density Time Block', 
+        desc: '2 rounds · 4 exercises · 10 mins. block · 2 mins. rest', 
+        category: 'cardio',
+        type: 'density',
+        rounds: 2,                        // 2 rounds
+        exercisesPerRound: 4,              // 4 exercises each round
+        blockDuration: 10 * 60,            // 10 minutes per block
+        roundBreak: 120                     // 2 min rest between rounds
+    },
+    { 
+        name: 'Warmup/Cooldown', 
+        desc: '45 sec', 
+        category: 'flex',
+        type: 'simple',
+        work: 45,                          // 45 sec work
+        rest: 5,                            // 5 sec transition
+        rounds: 8,                          // 8 stretches
+        sets: 1
+    }
+];
 
     // ========== STATE ==========
     let currentMode = 'presets';
