@@ -146,9 +146,9 @@
 
     // Custom tabs
     const customTabBtns = document.querySelectorAll('.custom-tab-btn');
-    const customRoundsPanel = document.getElementById('customRounds');
-    const customSetsPanel = document.getElementById('customSets');
-    const customSimplePanel = document.getElementById('customSimple');
+    const customRoundsPanel = document.getElementById('customRoundsPanel');
+    const customSetsPanel = document.getElementById('customSetsPanel');
+    const customSimplePanel = document.getElementById('customSimplePanel');
 
     // Category pills
     const categoryPills = document.querySelectorAll('.category-pill');
