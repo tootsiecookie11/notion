@@ -446,3 +446,61 @@ body {
         padding-right: max(1.2rem, env(safe-area-inset-right));
     }
 }
+
+/* Stopwatch specific styles */
+.stopwatch-panel {
+    min-height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0.5rem 0;
+}
+
+.lap-time {
+    font-size: 1rem;
+    color: var(--deep-teal);
+    opacity: 0.7;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+}
+
+/* Month counter for stopwatch */
+.month-counter {
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--amethyst-smoke);
+    margin-top: 0.3rem;
+    font-weight: 400;
+    opacity: 0.8;
+    display: none;
+}
+
+.month-counter.visible {
+    display: block;
+}
+
+/* Status badge variations */
+.status-badge.standby {
+    background: rgba(176, 123, 172, 0.12);
+    color: var(--deep-teal);
+}
+
+.status-badge.running {
+    background: rgba(95, 115, 103, 0.15);
+    color: var(--deep-teal);
+}
+
+.status-badge.paused {
+    background: rgba(176, 123, 172, 0.25);
+    color: var(--deep-teal);
+}
+
+.status-badge.reset {
+    background: rgba(176, 123, 172, 0.12);
+    color: var(--deep-teal);
+}
+
+/* Hide exercise info by default */
+.exercise-info {
+    display: none;
+}
