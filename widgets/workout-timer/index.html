@@ -2,16 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>cozy workout · timer</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="timer-container">
+        <!-- mobile header note (only visible on mobile) -->
+        <div class="mobile-header-note">
+            <span class="mobile-icon">📱</span>
+            <span class="mobile-text">tap to interact · opens in browser</span>
+        </div>
+
         <!-- tabs -->
         <div class="tabs">
-            <button class="tab-btn active" data-tab="presets">📋 Preset Workout</button>
-            <button class="tab-btn" data-tab="custom">✨ Custom Timer</button>
+            <button class="tab-btn active" data-tab="presets">📋 Preset</button>
+            <button class="tab-btn" data-tab="custom">✨ Custom</button>
             <button class="tab-btn" data-tab="stopwatch">⏱️ Stopwatch</button>
         </div>
 
@@ -43,8 +49,8 @@
         <div id="customTab" class="tab-content" style="display: none;">
             <div class="custom-panel">
                 <div class="custom-tabs">
-                    <button class="custom-tab-btn active" data-custom-type="rounds">🔄 rounds based</button>
-                    <button class="custom-tab-btn" data-custom-type="sets">🎯 sets based</button>
+                    <button class="custom-tab-btn active" data-custom-type="rounds">🔄 rounds</button>
+                    <button class="custom-tab-btn" data-custom-type="sets">🎯 sets</button>
                     <button class="custom-tab-btn" data-custom-type="simple">⏱️ simple</button>
                 </div>
 
@@ -56,25 +62,25 @@
                             <input type="number" id="customRounds" value="4" min="1" max="20">
                         </div>
                         <div class="input-group">
-                            <label>exercises/round</label>
+                            <label>ex/round</label>
                             <input type="number" id="customExPerRound" value="4" min="1" max="20">
                         </div>
                         <div class="input-group">
-                            <label>sets/exercise</label>
+                            <label>sets/ex</label>
                             <input type="number" id="customSetsPerEx" value="2" min="1" max="10">
                         </div>
                     </div>
                     <div class="input-row">
                         <div class="input-group">
-                            <label>work (sec)</label>
+                            <label>work (s)</label>
                             <input type="number" id="customWorkRounds" value="20" min="1" max="300">
                         </div>
                         <div class="input-group">
-                            <label>rest (sec)</label>
+                            <label>rest (s)</label>
                             <input type="number" id="customRestRounds" value="10" min="0" max="300">
                         </div>
                         <div class="input-group">
-                            <label>round break (sec)</label>
+                            <label>break (s)</label>
                             <input type="number" id="customRoundBreak" value="30" min="0" max="600">
                         </div>
                     </div>
@@ -88,21 +94,21 @@
                             <input type="number" id="customSets" value="3" min="1" max="20">
                         </div>
                         <div class="input-group">
-                            <label>exercises/set</label>
+                            <label>ex/set</label>
                             <input type="number" id="customExPerSet" value="8" min="1" max="20">
                         </div>
                     </div>
                     <div class="input-row">
                         <div class="input-group">
-                            <label>work (sec)</label>
+                            <label>work (s)</label>
                             <input type="number" id="customWorkSets" value="40" min="1" max="300">
                         </div>
                         <div class="input-group">
-                            <label>rest (sec)</label>
+                            <label>rest (s)</label>
                             <input type="number" id="customRestSets" value="20" min="0" max="300">
                         </div>
                         <div class="input-group">
-                            <label>set break (sec)</label>
+                            <label>break (s)</label>
                             <input type="number" id="customSetBreak" value="60" min="0" max="600">
                         </div>
                     </div>
@@ -112,14 +118,15 @@
                 <div id="customSimplePanel" class="custom-type-panel" style="display: none;">
                     <div class="input-row">
                         <div class="input-group">
-                            <label>work (min:sec)</label>
-                            <div style="display: flex; gap: 0.3rem;">
-                                <input type="text" id="customWorkMin" placeholder="00" value="20" maxlength="2"> :
-                                <input type="text" id="customWorkSec" placeholder="00" value="00" maxlength="2">
+                            <label>work</label>
+                            <div class="time-input-group">
+                                <input type="text" id="customWorkMin" placeholder="00" value="20" maxlength="2" inputmode="numeric">
+                                <span class="time-separator">:</span>
+                                <input type="text" id="customWorkSec" placeholder="00" value="00" maxlength="2" inputmode="numeric">
                             </div>
                         </div>
                         <div class="input-group">
-                            <label>rest (sec)</label>
+                            <label>rest (s)</label>
                             <input type="number" id="customRestSimple" value="0" min="0" max="300">
                         </div>
                     </div>
@@ -143,13 +150,18 @@
         <!-- current exercise info -->
         <div class="exercise-info" id="exerciseInfo"></div>
 
-        <!-- control buttons -->
+        <!-- control buttons - optimized for touch -->
         <div class="controls">
             <button class="btn" id="startBtn">▶ start</button>
-            <button class="btn btn-secondary" id="pauseBtn">⏸ pause</button>
-            <button class="btn btn-secondary" id="resetBtn">↺ reset</button>
+            <button class="btn" id="pauseBtn">⏸ pause</button>
+            <button class="btn" id="resetBtn">↺ reset</button>
         </div>
         <div class="status-badge" id="statusMessage">ready · select a preset</div>
+        
+        <!-- mobile touch optimization note -->
+        <div class="mobile-touch-note">
+            <span>👆 buttons are touch optimized</span>
+        </div>
     </div>
 
     <script src="script.js"></script>
