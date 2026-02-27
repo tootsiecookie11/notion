@@ -116,6 +116,9 @@ body {
     color: var(--deep-teal);
     line-height: 1;
     text-shadow: 2px 2px 10px rgba(176, 123, 172, 0.15);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+    display: inline-block;
 }
 
 .round-info {
