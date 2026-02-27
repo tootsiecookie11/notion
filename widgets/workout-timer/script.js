@@ -127,6 +127,13 @@
         pyramidCurrentWork: 20
     };
 
+        // ========== STOPWATCH VARIABLES ==========
+    let stopwatchTime = 0; // in seconds
+    let stopwatchRunning = false;
+    let stopwatchInterval = null;
+    let stopwatchMonthCounter = 0;
+    const MONTH_THRESHOLD = 744 * 60 * 60; // 744 hours in seconds
+
     // DOM elements
     const timerDisplay = document.getElementById('timerDisplay');
     const roundDisplay = document.getElementById('roundDisplay');
@@ -174,11 +181,28 @@
     const customSimpleRounds = document.getElementById('customSimpleRounds');
 
     // ========== HELPER FUNCTIONS ==========
-    function formatTime(seconds) {
+    function formatTime(seconds, showMilliseconds = false) {
         if (seconds < 0) seconds = 0;
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        
+        if (showMilliseconds) {
+            // For stopwatch: show with milliseconds
+            const totalSeconds = Math.floor(seconds);
+            const milliseconds = Math.floor((seconds - totalSeconds) * 100);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const secs = totalSeconds % 60;
+            
+            if (hours > 0) {
+                return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${milliseconds.toString().padStart(2, '0')}`;
+            } else {
+                return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${milliseconds.toString().padStart(2, '0')}`;
+            }
+        } else {
+            // For regular timer
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
     }
 
     function updateDisplay() {
@@ -650,24 +674,40 @@
             customTab.style.display = tab === 'custom' ? 'block' : 'none';
             stopwatchTab.style.display = tab === 'stopwatch' ? 'block' : 'none';
 
+            // Stop any running timers
             stopTimer();
+            if (stopwatchRunning) {
+                pauseStopwatch();
+            }
             
             if (tab === 'stopwatch') {
+                // Stopwatch mode
                 workout.type = 'stopwatch';
-                workout.timeLeft = 0;
-                roundDisplay.innerText = 'stopwatch';
-                exerciseInfo.innerText = '';
-                structureInfo.innerText = '';
-                statusMsg.innerText = '⏱️ stopwatch mode';
-                updateDisplay();
+                resetStopwatch();
+                structureInfo.style.display = 'none';
+                
+                statusMsg.innerText = '⚪ Standby';
+                statusMsg.className = 'status-badge standby';
+                
             } else if (tab === 'custom') {
+                structureInfo.style.display = 'block';
                 loadCustomTimer();
+                statusMsg.innerText = 'ready';
+                statusMsg.className = 'status-badge';
+                
             } else {
+                structureInfo.style.display = 'block';
                 if (activePreset) loadPreset(activePreset);
                 else {
                     renderPresets(activeCategory);
                     statusMsg.innerText = 'ready · select a preset';
+                    statusMsg.className = 'status-badge';
                 }
+            }
+            
+            // Hide month counter when not in stopwatch mode
+            if (tab !== 'stopwatch') {
+                document.getElementById('monthCounter').classList.remove('visible');
             }
         });
     });
@@ -690,18 +730,28 @@
     });
 
     // Control buttons
-    startBtn.addEventListener('click', startTimer);
-    pauseBtn.addEventListener('click', pauseTimer);
-    resetBtn.addEventListener('click', resetTimer);
+    startBtn.addEventListener('click', () => {
+        if (currentMode === 'stopwatch') {
+            startStopwatch();
+        } else {
+            startTimer();
+        }
+    });
 
-    // Input validation for minutes/seconds
-    [customWorkMin, customWorkSec].forEach(input => {
-        input.addEventListener('input', function() {
-            let val = this.value.replace(/[^0-9]/g, '');
-            if (val.length > 2) val = val.slice(0, 2);
-            if (parseInt(val) > 59) val = '59';
-            this.value = val;
-        });
+    pauseBtn.addEventListener('click', () => {
+        if (currentMode === 'stopwatch') {
+            pauseStopwatch();
+        } else {
+            pauseTimer();
+        }
+    });
+
+    resetBtn.addEventListener('click', () => {
+        if (currentMode === 'stopwatch') {
+            resetStopwatch();
+        } else {
+            resetTimer();
+        }
     });
 
     // Custom input change listeners
@@ -720,6 +770,62 @@
             });
         }
     });
+
+        // ========== STOPWATCH FUNCTIONS ==========
+    function startStopwatch() {
+        if (stopwatchRunning) return;
+        
+        stopwatchRunning = true;
+        stopwatchInterval = setInterval(() => {
+            stopwatchTime += 0.01; // Increment by 10ms
+            
+            // Check if we've reached 744 hours
+            if (stopwatchTime >= MONTH_THRESHOLD) {
+                stopwatchMonthCounter++;
+                stopwatchTime = 0;
+                
+                // Update month counter display
+                const monthCounter = document.getElementById('monthCounter');
+                if (stopwatchMonthCounter > 0) {
+                    monthCounter.textContent = `${stopwatchMonthCounter} month${stopwatchMonthCounter > 1 ? 's' : ''} +`;
+                    monthCounter.classList.add('visible');
+                }
+            }
+            
+            updateStopwatchDisplay();
+        }, 10); // Update every 10ms for smooth milliseconds
+        
+        statusMsg.innerText = '▶ Running...';
+        statusMsg.className = 'status-badge running';
+    }
+
+    function pauseStopwatch() {
+        if (!stopwatchRunning) return;
+        
+        clearInterval(stopwatchInterval);
+        stopwatchRunning = false;
+        statusMsg.innerText = '⏸ Paused';
+        statusMsg.className = 'status-badge paused';
+    }
+
+    function resetStopwatch() {
+        clearInterval(stopwatchInterval);
+        stopwatchRunning = false;
+        stopwatchTime = 0;
+        stopwatchMonthCounter = 0;
+        
+        const monthCounter = document.getElementById('monthCounter');
+        monthCounter.textContent = '';
+        monthCounter.classList.remove('visible');
+        
+        updateStopwatchDisplay();
+        statusMsg.innerText = '↺ Reset—Ready';
+        statusMsg.className = 'status-badge reset';
+    }
+
+    function updateStopwatchDisplay() {
+        timerDisplay.innerText = formatTime(stopwatchTime, true);
+    }
 
     // ========== INITIALIZATION ==========
     renderPresets('all');
