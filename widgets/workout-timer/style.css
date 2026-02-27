@@ -10,18 +10,17 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent; /* removes grey tap highlight on mobile */
+    -webkit-tap-highlight-color: transparent;
     font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
 }
 
 body {
     min-height: 100vh;
-    min-height: -webkit-fill-available; /* better mobile viewport handling */
+    min-height: -webkit-fill-available;
     display: flex;
     justify-content: center;
     align-items: center;
     
-    /* soft layered background */
     background:
         radial-gradient(circle at top left, var(--azure-mist), transparent 60%),
         radial-gradient(circle at bottom right, var(--frozen-water), transparent 60%),
@@ -39,7 +38,7 @@ body {
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     
-    border-radius: 32px; /* slightly smaller on mobile */
+    border-radius: 32px;
     padding: 1.2rem;
     
     border: 1px solid rgba(255, 255, 255, 0.45);
@@ -48,24 +47,6 @@ body {
         0 20px 40px rgba(95, 115, 103, 0.15),
         0 6px 14px rgba(95, 115, 103, 0.08),
         inset 0 1px 1px rgba(255, 255, 255, 0.6);
-}
-
-/* mobile header note */
-.mobile-header-note {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.3rem;
-    margin-bottom: 0.8rem;
-    padding: 0.3rem;
-    background: rgba(176, 123, 172, 0.12);
-    border-radius: 30px;
-    font-size: 0.7rem;
-    color: var(--deep-teal);
-}
-
-.mobile-icon {
-    font-size: 0.9rem;
 }
 
 /* tabs navigation - mobile optimized */
@@ -85,7 +66,7 @@ body {
 .tab-btn {
     border: none;
     background: transparent;
-    padding: 0.7rem 0.8rem; /* larger touch target */
+    padding: 0.7rem 0.8rem;
     font-size: 0.85rem;
     font-weight: 500;
     color: var(--deep-teal);
@@ -93,8 +74,8 @@ body {
     cursor: pointer;
     transition: all 0.2s ease;
     flex: 1 1 auto;
-    min-width: 70px; /* ensures minimum touch size */
-    touch-action: manipulation; /* optimizes for touch */
+    min-width: 70px;
+    touch-action: manipulation;
 }
 
 .tab-btn:hover {
@@ -113,7 +94,7 @@ body {
 }
 
 .time {
-    font-size: 4.5rem; /* smaller on mobile */
+    font-size: 4.5rem;
     font-weight: 300;
     letter-spacing: -1px;
     color: var(--deep-teal);
@@ -158,7 +139,7 @@ body {
     background: transparent;
     border: 1px solid rgba(176, 123, 172, 0.3);
     color: var(--deep-teal);
-    padding: 0.5rem 0.8rem; /* larger touch target */
+    padding: 0.5rem 0.8rem;
     border-radius: 30px;
     font-size: 0.8rem;
     font-weight: 500;
@@ -182,7 +163,7 @@ body {
     max-height: 220px;
     overflow-y: auto;
     padding-right: 0.3rem;
-    -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
 }
 
 .preset-card {
@@ -197,7 +178,7 @@ body {
 }
 
 .preset-card:active {
-    transform: scale(0.98); /* subtle press effect on mobile */
+    transform: scale(0.98);
     background: rgba(176, 123, 172, 0.18);
 }
 
@@ -291,7 +272,7 @@ body {
     text-align: center;
     font-size: 1rem;
     color: var(--deep-teal);
-    -webkit-appearance: none; /* removes default iOS styling */
+    -webkit-appearance: none;
     appearance: none;
     touch-action: manipulation;
 }
@@ -339,7 +320,7 @@ body {
 .btn {
     background: rgba(230, 253, 255, 0.75);
     border: none;
-    padding: 0.9rem 0.5rem; /* larger touch target */
+    padding: 0.9rem 0.5rem;
     border-radius: 40px;
     font-size: 0.95rem;
     font-weight: 500;
@@ -371,17 +352,6 @@ body {
     margin: 0.8rem 0 0;
 }
 
-/* mobile touch note */
-.mobile-touch-note {
-    text-align: center;
-    font-size: 0.65rem;
-    color: var(--deep-teal);
-    opacity: 0.5;
-    margin-top: 0.5rem;
-    padding-top: 0.3rem;
-    border-top: 1px dashed rgba(176, 123, 172, 0.2);
-}
-
 /* scrollbar - mobile friendly */
 .presets-grid::-webkit-scrollbar {
     width: 4px;
@@ -406,10 +376,6 @@ body {
     .timer-container {
         border-radius: 42px;
         padding: 2rem 1.8rem;
-    }
-    
-    .mobile-header-note {
-        display: none; /* hide mobile note on desktop */
     }
     
     .time {
@@ -439,10 +405,6 @@ body {
     
     .preset-card:hover {
         transform: translateY(-2px);
-    }
-    
-    .mobile-touch-note {
-        display: none; /* hide touch note on desktop */
     }
 }
 
