@@ -819,7 +819,7 @@
         monthCounter.classList.remove('visible');
         
         updateStopwatchDisplay();
-        statusMsg.innerText = '↺ Reset—Ready';
+        statusMsg.innerText = '↺ Reset — Ready';
         statusMsg.className = 'status-badge reset';
     }
 
