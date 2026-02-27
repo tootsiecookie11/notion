@@ -10,25 +10,27 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent; /* removes grey tap highlight on mobile */
     font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
 }
 
 body {
     min-height: 100vh;
+    min-height: -webkit-fill-available; /* better mobile viewport handling */
     display: flex;
     justify-content: center;
     align-items: center;
     
-    /* soft layered background - following the sample card pattern */
+    /* soft layered background */
     background:
         radial-gradient(circle at top left, var(--azure-mist), transparent 60%),
         radial-gradient(circle at bottom right, var(--frozen-water), transparent 60%),
         linear-gradient(135deg, #eefcf8, #dff6f2);
     
-    padding: 1rem;
+    padding: 0.5rem;
 }
 
-/* ===== FLOATING GLASS CARD ===== */
+/* ===== MOBILE-FIRST BASE STYLES ===== */
 .timer-container {
     max-width: 750px;
     width: 100%;
@@ -37,8 +39,8 @@ body {
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     
-    border-radius: 42px;
-    padding: 2rem 1.8rem;
+    border-radius: 32px; /* slightly smaller on mobile */
+    padding: 1.2rem;
     
     border: 1px solid rgba(255, 255, 255, 0.45);
     
@@ -48,94 +50,106 @@ body {
         inset 0 1px 1px rgba(255, 255, 255, 0.6);
 }
 
-/* tabs navigation */
+/* mobile header note */
+.mobile-header-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    margin-bottom: 0.8rem;
+    padding: 0.3rem;
+    background: rgba(176, 123, 172, 0.12);
+    border-radius: 30px;
+    font-size: 0.7rem;
+    color: var(--deep-teal);
+}
+
+.mobile-icon {
+    font-size: 0.9rem;
+}
+
+/* tabs navigation - mobile optimized */
 .tabs {
     display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
+    gap: 0.3rem;
+    margin-bottom: 1.2rem;
     flex-wrap: wrap;
     justify-content: center;
     
     background: rgba(176, 123, 172, 0.18);
-    padding: 0.6rem;
-    border-radius: 100px;
+    padding: 0.4rem;
+    border-radius: 40px;
     backdrop-filter: blur(4px);
 }
 
 .tab-btn {
     border: none;
     background: transparent;
-    padding: 0.6rem 1.4rem;
-    font-size: 0.95rem;
-    font-weight: 450;
+    padding: 0.7rem 0.8rem; /* larger touch target */
+    font-size: 0.85rem;
+    font-weight: 500;
     color: var(--deep-teal);
-    border-radius: 40px;
+    border-radius: 30px;
     cursor: pointer;
-    transition: all 0.25s ease;
-    letter-spacing: -0.2px;
-    flex: 0 1 auto;
-    white-space: nowrap;
+    transition: all 0.2s ease;
+    flex: 1 1 auto;
+    min-width: 70px; /* ensures minimum touch size */
+    touch-action: manipulation; /* optimizes for touch */
 }
 
 .tab-btn:hover {
-    color: var(--deep-teal);
     background: rgba(176, 123, 172, 0.25);
 }
 
 .tab-btn.active {
     background: rgba(176, 123, 172, 0.65);
     color: white;
-    box-shadow: 0 4px 8px rgba(95, 115, 103, 0.15);
 }
 
-/* timer display */
+/* timer display - responsive font sizes */
 .timer-display {
     text-align: center;
-    margin: 1rem 0 0.5rem;
+    margin: 0.5rem 0;
 }
 
 .time {
-    font-size: 5.5rem;
+    font-size: 4.5rem; /* smaller on mobile */
     font-weight: 300;
     letter-spacing: -1px;
     color: var(--deep-teal);
     line-height: 1;
     text-shadow: 2px 2px 10px rgba(176, 123, 172, 0.15);
-    font-feature-settings: "tnum";
 }
 
 .round-info {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
     color: var(--deep-teal);
-    margin-top: 0.4rem;
+    margin-top: 0.3rem;
     font-weight: 500;
     
     background: rgba(176, 123, 172, 0.18);
     display: inline-block;
-    padding: 0.4rem 1.4rem;
-    border-radius: 40px;
-    backdrop-filter: blur(4px);
-    box-shadow: inset 0 1px 4px rgba(255,255,255,0.8);
+    padding: 0.3rem 1rem;
+    border-radius: 30px;
 }
 
 /* structure info */
 .structure-info {
     text-align: center;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: var(--deep-teal);
-    margin: 0.5rem 0 1rem;
+    margin: 0.3rem 0 0.8rem;
     
     background: rgba(176, 123, 172, 0.12);
-    padding: 0.5rem;
-    border-radius: 30px;
-    font-weight: 400;
+    padding: 0.4rem;
+    border-radius: 20px;
 }
 
-/* preset category pills */
+/* preset category pills - touch optimized */
 .preset-categories {
     display: flex;
-    gap: 0.5rem;
-    margin: 1rem 0 1rem;
+    gap: 0.3rem;
+    margin: 0.8rem 0;
     flex-wrap: wrap;
     justify-content: center;
 }
@@ -144,95 +158,95 @@ body {
     background: transparent;
     border: 1px solid rgba(176, 123, 172, 0.3);
     color: var(--deep-teal);
-    padding: 0.3rem 1rem;
-    border-radius: 40px;
-    font-size: 0.85rem;
-    font-weight: 450;
+    padding: 0.5rem 0.8rem; /* larger touch target */
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
+    touch-action: manipulation;
 }
 
 .category-pill.active {
     background: rgba(176, 123, 172, 0.65);
     border-color: var(--amethyst-smoke);
     color: white;
-    box-shadow: 0 2px 6px rgba(95, 115, 103, 0.15);
 }
 
-/* presets grid */
+/* presets grid - mobile optimized */
 .presets-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-    gap: 0.8rem;
-    margin: 1rem 0 1.5rem;
-    max-height: 250px;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.6rem;
+    margin: 0.8rem 0 1.2rem;
+    max-height: 220px;
     overflow-y: auto;
-    padding-right: 0.4rem;
+    padding-right: 0.3rem;
+    -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
 }
 
 .preset-card {
     background: rgba(255, 255, 255, 0.35);
-    padding: 1rem 0.8rem;
-    border-radius: 24px;
+    padding: 0.8rem;
+    border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.45);
-    box-shadow: 0 4px 10px rgba(95, 115, 103, 0.08);
     cursor: pointer;
     transition: all 0.2s;
     backdrop-filter: blur(4px);
+    touch-action: manipulation;
 }
 
-.preset-card:hover {
+.preset-card:active {
+    transform: scale(0.98); /* subtle press effect on mobile */
     background: rgba(176, 123, 172, 0.18);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(95, 115, 103, 0.12);
 }
 
 .preset-name {
-    font-weight: 520;
+    font-weight: 600;
     color: var(--deep-teal);
     margin-bottom: 0.2rem;
-    font-size: 1rem;
+    font-size: 0.9rem;
 }
 
 .preset-desc {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: var(--deep-teal);
     opacity: 0.8;
-    line-height: 1.3;
+    line-height: 1.2;
 }
 
-/* custom timer panel */
+/* custom timer panel - mobile optimized */
 .custom-panel {
     background: rgba(255, 255, 255, 0.3);
-    border-radius: 36px;
-    padding: 1.5rem;
-    margin: 1rem 0 1.5rem;
+    border-radius: 28px;
+    padding: 1rem;
+    margin: 0.8rem 0 1.2rem;
     border: 1px solid rgba(255, 255, 255, 0.45);
     backdrop-filter: blur(4px);
 }
 
 .custom-tabs {
     display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
+    gap: 0.3rem;
+    margin-bottom: 1.2rem;
     justify-content: center;
     
     background: rgba(176, 123, 172, 0.18);
-    padding: 0.4rem;
-    border-radius: 50px;
+    padding: 0.3rem;
+    border-radius: 40px;
 }
 
 .custom-tab-btn {
     border: none;
     background: transparent;
-    padding: 0.5rem 1rem;
-    border-radius: 40px;
-    font-size: 0.85rem;
+    padding: 0.6rem 0.3rem;
+    border-radius: 30px;
+    font-size: 0.8rem;
     color: var(--deep-teal);
     cursor: pointer;
     transition: all 0.2s;
     flex: 1;
-    white-space: nowrap;
+    touch-action: manipulation;
 }
 
 .custom-tab-btn.active {
@@ -240,153 +254,233 @@ body {
     color: white;
 }
 
-.stopwatch-panel {
-    text-align: center;
-    padding: 1.5rem;
-    color: var(--deep-teal);
-    
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 36px;
-    margin: 1rem 0;
-    font-size: 1.1rem;
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.45);
-}
-
+/* input groups - mobile optimized */
 .input-row {
     display: flex;
-    gap: 1rem;
+    gap: 0.5rem;
     flex-wrap: wrap;
     justify-content: center;
-    margin-bottom: 1.2rem;
+    margin-bottom: 0.8rem;
 }
 
 .input-group {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.3rem;
-    min-width: 90px;
+    gap: 0.2rem;
+    min-width: 70px;
+    flex: 1 1 auto;
 }
 
 .input-group label {
-    font-size: 0.7rem;
+    font-size: 0.6rem;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.2px;
     color: var(--deep-teal);
-    font-weight: 500;
+    font-weight: 600;
     opacity: 0.8;
 }
 
 .input-group input {
     background: rgba(255, 255, 255, 0.5);
     border: 1px solid rgba(176, 123, 172, 0.3);
-    border-radius: 30px;
-    padding: 0.5rem 0.8rem;
+    border-radius: 25px;
+    padding: 0.6rem 0.3rem;
     width: 100%;
-    max-width: 90px;
+    max-width: 80px;
     text-align: center;
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: var(--deep-teal);
-    box-shadow: inset 0 2px 5px rgba(95, 115, 103, 0.05);
+    -webkit-appearance: none; /* removes default iOS styling */
+    appearance: none;
+    touch-action: manipulation;
 }
 
-.input-group input:focus {
-    outline: none;
-    border-color: var(--amethyst-smoke);
-    background: rgba(255, 255, 255, 0.7);
-}
-
-.input-group div[style*="flex"] {
+/* custom time input group */
+.time-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
     width: 100%;
     justify-content: center;
+}
+
+.time-input-group input {
+    max-width: 50px;
+}
+
+.time-separator {
+    color: var(--deep-teal);
+    font-weight: 600;
+    font-size: 1.2rem;
 }
 
 /* exercise info */
 .exercise-info {
     text-align: center;
-    font-size: 1.2rem;
+    font-size: 1rem;
     color: var(--deep-teal);
     margin: 0.5rem 0;
     padding: 0.5rem;
     
     background: rgba(176, 123, 172, 0.12);
-    border-radius: 40px;
-    font-weight: 450;
+    border-radius: 30px;
 }
 
-/* controls */
+/* controls - touch optimized */
 .controls {
     display: flex;
-    gap: 1rem;
+    gap: 0.5rem;
     justify-content: center;
-    margin: 1.5rem 0 0.5rem;
+    margin: 1rem 0 0.3rem;
     flex-wrap: wrap;
 }
 
 .btn {
     background: rgba(230, 253, 255, 0.75);
     border: none;
-    padding: 0.8rem 2rem;
-    border-radius: 50px;
-    font-size: 1rem;
-    font-weight: 480;
+    padding: 0.9rem 0.5rem; /* larger touch target */
+    border-radius: 40px;
+    font-size: 0.95rem;
+    font-weight: 500;
     color: var(--deep-teal);
-    box-shadow: 0 6px 14px rgba(95, 115, 103, 0.15), 0 2px 4px rgba(255,255,255,0.8);
     cursor: pointer;
     transition: all 0.2s;
     border: 1px solid rgba(255, 255, 255, 0.45);
-    min-width: 110px;
-}
-
-.btn:hover {
-    background: rgba(176, 123, 172, 0.65);
-    color: white;
-    box-shadow: 0 8px 18px rgba(95, 115, 103, 0.2);
-    transform: translateY(-1px);
+    min-width: 90px;
+    flex: 1 1 auto;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .btn:active {
-    transform: translateY(1px);
-    box-shadow: 0 3px 8px rgba(95, 115, 103, 0.15);
-}
-
-.btn-secondary {
-    background: rgba(219, 249, 244, 0.75);
-    box-shadow: 0 4px 10px rgba(95, 115, 103, 0.1);
-}
-
-.btn-secondary:hover {
+    transform: scale(0.97);
     background: rgba(176, 123, 172, 0.65);
     color: white;
 }
 
+/* status badge */
 .status-badge {
     text-align: center;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: var(--deep-teal);
     
     background: rgba(176, 123, 172, 0.12);
     padding: 0.4rem;
-    border-radius: 30px;
-    margin: 1rem 0 0;
+    border-radius: 25px;
+    margin: 0.8rem 0 0;
 }
 
-/* scrollbar */
+/* mobile touch note */
+.mobile-touch-note {
+    text-align: center;
+    font-size: 0.65rem;
+    color: var(--deep-teal);
+    opacity: 0.5;
+    margin-top: 0.5rem;
+    padding-top: 0.3rem;
+    border-top: 1px dashed rgba(176, 123, 172, 0.2);
+}
+
+/* scrollbar - mobile friendly */
 .presets-grid::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
 }
 
 .presets-grid::-webkit-scrollbar-track {
-    background: rgba(176, 123, 172, 0.12);
+    background: rgba(176, 123, 172, 0.1);
     border-radius: 10px;
 }
 
 .presets-grid::-webkit-scrollbar-thumb {
-    background: rgba(176, 123, 172, 0.65);
+    background: rgba(176, 123, 172, 0.5);
     border-radius: 10px;
 }
 
-.presets-grid::-webkit-scrollbar-thumb:hover {
-    background: var(--amethyst-smoke);
+/* ===== TABLET AND DESKTOP UPGRADES ===== */
+@media (min-width: 768px) {
+    body {
+        padding: 1rem;
+    }
+    
+    .timer-container {
+        border-radius: 42px;
+        padding: 2rem 1.8rem;
+    }
+    
+    .mobile-header-note {
+        display: none; /* hide mobile note on desktop */
+    }
+    
+    .time {
+        font-size: 5.5rem;
+    }
+    
+    .tab-btn {
+        padding: 0.6rem 1.4rem;
+        font-size: 0.95rem;
+    }
+    
+    .presets-grid {
+        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+        max-height: 250px;
+    }
+    
+    .btn {
+        padding: 0.8rem 2rem;
+        min-width: 110px;
+    }
+    
+    .btn:hover {
+        background: rgba(176, 123, 172, 0.65);
+        color: white;
+        transform: translateY(-1px);
+    }
+    
+    .preset-card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .mobile-touch-note {
+        display: none; /* hide touch note on desktop */
+    }
+}
+
+/* ===== SMALL MOBILE OPTIMIZATIONS ===== */
+@media (max-width: 380px) {
+    .timer-container {
+        padding: 0.8rem;
+    }
+    
+    .time {
+        font-size: 3.8rem;
+    }
+    
+    .tab-btn {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .input-group {
+        min-width: 60px;
+    }
+    
+    .input-group input {
+        max-width: 65px;
+        font-size: 0.9rem;
+    }
+    
+    .btn {
+        min-width: 75px;
+        padding: 0.8rem 0.3rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* ===== SAFE AREA SUPPORT FOR NOTCHED PHONES ===== */
+@supports (padding: max(0px)) {
+    .timer-container {
+        padding-left: max(1.2rem, env(safe-area-inset-left));
+        padding-right: max(1.2rem, env(safe-area-inset-right));
+    }
 }
