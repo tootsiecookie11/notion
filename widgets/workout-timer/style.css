@@ -133,39 +133,6 @@ body {
     border-radius: 30px;
 }
 
-/* Status badge - under timer */
-.status-badge {
-    text-align: center;
-    font-size: 0.9rem;
-    color: var(--deep-teal);
-    background: rgba(176, 123, 172, 0.12);
-    padding: 0.5rem;
-    border-radius: 30px;
-    margin: 0.5rem 0 0.8rem;
-    width: 100%;
-}
-
-/* Status badge variations */
-.status-badge.standby {
-    background: rgba(176, 123, 172, 0.12);
-    color: var(--deep-teal);
-}
-
-.status-badge.running {
-    background: rgba(95, 115, 103, 0.15);
-    color: var(--deep-teal);
-}
-
-.status-badge.paused {
-    background: rgba(176, 123, 172, 0.25);
-    color: var(--deep-teal);
-}
-
-.status-badge.reset {
-    background: rgba(176, 123, 172, 0.12);
-    color: var(--deep-teal);
-}
-
 /* structure info */
 .structure-info {
     text-align: center;
@@ -638,6 +605,67 @@ body {
         font-size: 0.75rem;
         padding: 0.6rem 0.2rem;
     }
+}
+
+/* Status badge with blinking animation */
+.status-badge {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #5F7367;
+    background: rgba(176, 123, 172, 0.12);
+    padding: 0.5rem;
+    border-radius: 30px;
+    margin: 0 0 0.5rem 0;
+    min-height: 2.2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+/* Blinking animation with darker background */
+.status-badge.blinking {
+    animation: darkBlink 1s infinite;
+}
+
+@keyframes darkBlink {
+    0%, 100% { 
+        background: rgba(176, 123, 172, 0.12);
+        color: #5F7367;
+    }
+    50% { 
+        background: rgba(95, 115, 103, 0.3);
+        color: #2c3530;
+    }
+}
+
+/* Structure info styles */
+.structure-info {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #5F7367;
+    background: rgba(176, 123, 172, 0.08);
+    padding: 0.4rem;
+    border-radius: 25px;
+    margin: 0 0 1rem 0;
+    min-height: 2.2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.progress-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.progress-divider {
+    opacity: 0.3;
+    margin: 0 0.2rem;
 }
 
 /* ===== SAFE AREA SUPPORT FOR NOTCHED PHONES ===== */
