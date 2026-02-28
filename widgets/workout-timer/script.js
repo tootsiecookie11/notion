@@ -411,7 +411,7 @@
             timerDisplay.textContent = formatTime(stopwatchTime, true);
         }, 10);
         
-        statusBadge.textContent = '⏱️ Running...';
+        setStatus('running');
     }
 
     function pauseStopwatch() {
@@ -419,7 +419,7 @@
         
         clearInterval(stopwatchInterval);
         stopwatchRunning = false;
-        statusBadge.textContent = '⏸ Paused';
+        setStatus('paused');
     }
 
     function resetStopwatch() {
@@ -433,7 +433,7 @@
         monthCounter.classList.remove('visible');
         
         timerDisplay.textContent = formatTime(0, true);
-        statusBadge.textContent = '↺ Reset — Ready';
+        setStatus('reset');
     }
 
     // ========== EVENT LISTENERS ==========
@@ -493,8 +493,8 @@
                 if (activePreset) loadPreset(activePreset);
                 else {
                     renderPresets(activeCategory);
-                    statusBadge.textContent = '⚪ Standby';
                     structureInfo.innerHTML = '<span class="progress-item">Ready</span>';
+                    setStatus('standby');
                 }
             }
         });
