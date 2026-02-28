@@ -274,7 +274,7 @@
     function updateCustomTimerDisplay() {
         timerDisplay.textContent = formatTime(customTimerValue);
         
-        // 6-second warning for custom timer
+        // 6-second warning
         if (customTimerValue < 6 && customTimerValue > 0) {
             timerDisplay.classList.add('warning');
         } else {
@@ -291,12 +291,14 @@
             html = `Set ${customWorkout.currentSet} / ${customWorkout.totalSets} │ Ex ${customWorkout.currentExercise} / ${customWorkout.totalExercises}`;
         } else if (customWorkout.type === 'rounds') {
             html = `Round ${customWorkout.currentRound} / ${customWorkout.totalRounds} │ Set ${customWorkout.currentSet} / ${customWorkout.totalSets} │ Ex ${customWorkout.currentExercise} / ${customWorkout.totalExercises}`;
+        } else {
+            html = 'Ready';
         }
         
         structureInfo.innerHTML = `<span class="progress-item">${html}</span>`;
     }
 
-    function updatePhaseStatus() {
+    function updateCustomPhaseStatus() {
         if (customWorkout.phase === 'work') {
             statusMsg.textContent = '▶ WORK';
         } else if (customWorkout.phase === 'rest') {
@@ -306,16 +308,16 @@
         }
     }
 
-    function startBlinking() {
+    function startCustomBlinking() {
         statusMsg.classList.add('blinking');
     }
 
-    function stopBlinking() {
+    function stopCustomBlinking() {
         statusMsg.classList.remove('blinking');
     }
 
     function setCustomStatus(status) {
-        stopBlinking();
+        stopCustomBlinking();
         
         if (status === 'standby') {
             statusMsg.textContent = '⚪ Standby';
@@ -324,8 +326,8 @@
         } else if (status === 'reset') {
             statusMsg.textContent = '↺ Reset — Ready';
         } else if (status === 'running') {
-            updatePhaseStatus();
-            startBlinking();
+            updateCustomPhaseStatus();
+            startCustomBlinking();
         }
     }
 
@@ -335,43 +337,48 @@
         
         customWorkout.type = customType;
         
+        // Clear all fields first (like card preview)
+        document.querySelectorAll('#customTab input').forEach(input => {
+            input.classList.remove('error');
+        });
+        
         if (customType === 'rounds') {
-            customWorkout.totalRounds = parseInt(customRounds.value) || 1;
-            customWorkout.totalSets = parseInt(customSetsPerEx.value) || 1;
-            customWorkout.totalExercises = parseInt(customExPerRound.value) || 1;
+            customWorkout.totalRounds = parseInt(document.getElementById('customRounds').value) || 1;
+            customWorkout.totalSets = parseInt(document.getElementById('customSetsPerEx').value) || 1;
+            customWorkout.totalExercises = parseInt(document.getElementById('customExPerRound').value) || 1;
             
-            const workMin = parseInt(customWorkRounds.value) || 0;
-            const workSec = parseInt(customWorkRounds.value) || 0;
+            const workSec = parseInt(document.getElementById('customWorkRounds').value) || 0;
             customWorkout.workDuration = workSec;
             
-            const restSec = parseInt(customRestRounds.value) || 0;
+            const restSec = parseInt(document.getElementById('customRestRounds').value) || 0;
             customWorkout.restDuration = restSec;
             
-            const breakSec = parseInt(customRoundBreak.value) || 0;
+            const breakSec = parseInt(document.getElementById('customRoundBreak').value) || 0;
             customWorkout.breakDuration = breakSec;
             
         } else if (customType === 'sets') {
-            customWorkout.totalSets = parseInt(customSets.value) || 1;
-            customWorkout.totalExercises = parseInt(customExPerSet.value) || 1;
+            customWorkout.totalSets = parseInt(document.getElementById('customSets').value) || 1;
+            customWorkout.totalExercises = parseInt(document.getElementById('customExPerSet').value) || 1;
             
-            const workSec = parseInt(customWorkSets.value) || 0;
+            const workSec = parseInt(document.getElementById('customWorkSets').value) || 0;
             customWorkout.workDuration = workSec;
             
-            const restSec = parseInt(customRestSets.value) || 0;
+            const restSec = parseInt(document.getElementById('customRestSets').value) || 0;
             customWorkout.restDuration = restSec;
             
-            const breakSec = parseInt(customSetBreak.value) || 0;
+            const breakSec = parseInt(document.getElementById('customSetBreak').value) || 0;
             customWorkout.breakDuration = breakSec;
             
         } else if (customType === 'simple') {
-            customWorkout.totalRounds = parseInt(customSimpleRounds.value) || 1;
+            customWorkout.totalRounds = parseInt(document.getElementById('customSimpleRounds').value) || 1;
             
-            const workMins = parseInt(customWorkMin.value) || 0;
-            const workSecs = parseInt(customWorkSec.value) || 0;
+            const workMins = parseInt(document.getElementById('customWorkMin').value) || 0;
+            const workSecs = parseInt(document.getElementById('customWorkSec').value) || 0;
             customWorkout.workDuration = (workMins * 60) + workSecs;
             
-            const restSecs = parseInt(customRestSimple.value) || 0;
+            const restSecs = parseInt(document.getElementById('customRestSimple').value) || 0;
             customWorkout.restDuration = restSecs;
+            customWorkout.breakDuration = 0;
         }
         
         customWorkout.currentRound = 1;
@@ -458,7 +465,7 @@
             }
         }
         
-        updatePhaseStatus();
+        updateCustomPhaseStatus();
         updateCustomStructureInfo();
         updateCustomTimerDisplay();
     }
@@ -471,6 +478,22 @@
         customTimerRunning = false;
         setCustomStatus('standby');
         structureInfo.innerHTML = '<span class="progress-item">Complete!</span>';
+    }
+
+    function validateCustomFields(container) {
+        const inputs = container.querySelectorAll('input');
+        let isValid = true;
+        
+        inputs.forEach(input => {
+            if (input.value === '' || input.value === '0') {
+                input.classList.add('error');
+                isValid = false;
+            } else {
+                input.classList.remove('error');
+            }
+        });
+        
+        return isValid;
     }
 
     // ========== PRESET FUNCTIONS ==========
@@ -957,6 +980,11 @@
             customSimplePanel.style.display = type === 'simple' ? 'block' : 'none';
             
             if (currentMode === 'custom') {
+                // Clear all fields when switching types
+                document.querySelectorAll('#customTab input').forEach(input => {
+                    input.value = '';
+                    input.classList.remove('error');
+                });
                 loadCustomWorkoutFromFields();
                 setCustomStatus('standby');
             }
@@ -968,11 +996,19 @@
         if (currentMode === 'stopwatch') {
             startStopwatch();
         } else if (currentMode === 'custom') {
-            if (!customTimerRunning) {
-                if (customPausedTime !== null) {
-                    customTimerValue = customPausedTime;
-                    customPausedTime = null;
-                }
+            let currentPanel;
+            if (customWorkout.type === 'rounds') currentPanel = customRoundsPanel;
+            else if (customWorkout.type === 'sets') currentPanel = customSetsPanel;
+            else currentPanel = customSimplePanel;
+            
+            if (validateCustomFields(currentPanel)) {
+                if (!customTimerRunning) {
+                    if (customPausedTime !== null) {
+                        customTimerValue = customPausedTime;
+                        customPausedTime = null;
+                    } else {
+                        loadCustomWorkoutFromFields();
+                    }
                 
                 customTimerRunning = true;
                 setCustomStatus('running');
@@ -1042,22 +1078,19 @@
         if (input) {
             input.addEventListener('change', () => {
                 if (currentMode === 'custom') {
-                    loadCustomWorkoutFromFields();
-                    setCustomStatus('standby');
+                    if (!customTimerRunning) {
+                        loadCustomWorkoutFromFields();
+                        setCustomStatus('standby');
+                    }
                 }
             });
-        }
-    });
 
-    // Input validation for minutes/seconds
-    [customWorkMin, customWorkSec].forEach(input => {
-        if (input) {
-            input.addEventListener('input', function() {
-                let val = this.value.replace(/[^0-9]/g, '');
-                if (val.length > 2) val = val.slice(0, 2);
-                if (parseInt(val) > 59) val = '59';
-                this.value = val;
-            });
+            // Input validation for number fields
+            if (input.type === 'number') {
+                input.addEventListener('input', function() {
+                    if (this.value < 0) this.value = 0;
+                });
+            }
         }
     });
 
