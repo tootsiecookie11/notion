@@ -686,7 +686,7 @@
                 resetStopwatch();
                 structureInfo.style.display = 'none';
                 
-                statusMsg.innerText = '⚪ Standby';
+                statusMsg.innerText = '⏳ Standby';
                 statusMsg.className = 'status-badge standby';
                 
             } else if (tab === 'custom') {
@@ -795,7 +795,7 @@
             updateStopwatchDisplay();
         }, 10); // Update every 10ms for smooth milliseconds
         
-        statusMsg.innerText = '▶ Running...';
+        statusMsg.innerText = '▶️ Running...';
         statusMsg.className = 'status-badge running';
     }
 
@@ -819,7 +819,7 @@
         monthCounter.classList.remove('visible');
         
         updateStopwatchDisplay();
-        statusMsg.innerText = '↺ Reset — Ready';
+        statusMsg.innerText = '✅ Reset — Ready';
         statusMsg.className = 'status-badge reset';
     }
 
