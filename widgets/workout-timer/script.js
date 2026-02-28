@@ -127,7 +127,28 @@
         pyramidCurrentWork: 20
     };
 
-        // ========== STOPWATCH VARIABLES ==========
+    // ========== CUSTOM TIMER STATE ==========
+    let customTimerValue = 0;
+    let customTimerRunning = false;
+    let customTimerInterval = null;
+    let customPausedTime = null;
+    
+    // Custom workout state
+    let customWorkout = {
+        type: '',
+        phase: 'work',
+        currentRound: 1,
+        totalRounds: 1,
+        currentSet: 1,
+        totalSets: 1,
+        currentExercise: 1,
+        totalExercises: 1,
+        workDuration: 0,
+        restDuration: 0,
+        breakDuration: 0
+    };
+
+    // ========== STOPWATCH VARIABLES ==========
     let stopwatchTime = 0; // in seconds
     let stopwatchRunning = false;
     let stopwatchInterval = null;
@@ -206,7 +227,11 @@
     }
 
     function updateDisplay() {
-        timerDisplay.innerText = formatTime(workout.timeLeft);
+        if (currentMode === 'custom') {
+            timerDisplay.innerText = formatTime(customTimerValue);
+        } else {
+            timerDisplay.innerText = formatTime(workout.timeLeft);
+        }
     }
 
     function updateInfoDisplays() {
@@ -243,6 +268,209 @@
             timerInterval = null;
         }
         isRunning = false;
+    }
+
+    // ========== CUSTOM TIMER FUNCTIONS ==========
+    function updateCustomTimerDisplay() {
+        timerDisplay.textContent = formatTime(customTimerValue);
+        
+        // 6-second warning for custom timer
+        if (customTimerValue < 6 && customTimerValue > 0) {
+            timerDisplay.classList.add('warning');
+        } else {
+            timerDisplay.classList.remove('warning');
+        }
+    }
+
+    function updateCustomStructureInfo() {
+        let html = '';
+        
+        if (customWorkout.type === 'simple') {
+            html = `Round ${customWorkout.currentRound} / ${customWorkout.totalRounds}`;
+        } else if (customWorkout.type === 'sets') {
+            html = `Set ${customWorkout.currentSet} / ${customWorkout.totalSets} │ Ex ${customWorkout.currentExercise} / ${customWorkout.totalExercises}`;
+        } else if (customWorkout.type === 'rounds') {
+            html = `Round ${customWorkout.currentRound} / ${customWorkout.totalRounds} │ Set ${customWorkout.currentSet} / ${customWorkout.totalSets} │ Ex ${customWorkout.currentExercise} / ${customWorkout.totalExercises}`;
+        }
+        
+        structureInfo.innerHTML = `<span class="progress-item">${html}</span>`;
+    }
+
+    function updatePhaseStatus() {
+        if (customWorkout.phase === 'work') {
+            statusMsg.textContent = '▶ WORK';
+        } else if (customWorkout.phase === 'rest') {
+            statusMsg.textContent = '▶ REST';
+        } else if (customWorkout.phase === 'break') {
+            statusMsg.textContent = '▶ BREAK';
+        }
+    }
+
+    function startBlinking() {
+        statusMsg.classList.add('blinking');
+    }
+
+    function stopBlinking() {
+        statusMsg.classList.remove('blinking');
+    }
+
+    function setCustomStatus(status) {
+        stopBlinking();
+        
+        if (status === 'standby') {
+            statusMsg.textContent = '⚪ Standby';
+        } else if (status === 'paused') {
+            statusMsg.textContent = '⏸ Paused';
+        } else if (status === 'reset') {
+            statusMsg.textContent = '↺ Reset — Ready';
+        } else if (status === 'running') {
+            updatePhaseStatus();
+            startBlinking();
+        }
+    }
+
+    function loadCustomWorkoutFromFields() {
+        const activeCustomTab = document.querySelector('.custom-tab-btn.active');
+        const customType = activeCustomTab ? activeCustomTab.dataset.customType : 'rounds';
+        
+        customWorkout.type = customType;
+        
+        if (customType === 'rounds') {
+            customWorkout.totalRounds = parseInt(customRounds.value) || 1;
+            customWorkout.totalSets = parseInt(customSetsPerEx.value) || 1;
+            customWorkout.totalExercises = parseInt(customExPerRound.value) || 1;
+            
+            const workMin = parseInt(customWorkRounds.value) || 0;
+            const workSec = parseInt(customWorkRounds.value) || 0;
+            customWorkout.workDuration = workSec;
+            
+            const restSec = parseInt(customRestRounds.value) || 0;
+            customWorkout.restDuration = restSec;
+            
+            const breakSec = parseInt(customRoundBreak.value) || 0;
+            customWorkout.breakDuration = breakSec;
+            
+        } else if (customType === 'sets') {
+            customWorkout.totalSets = parseInt(customSets.value) || 1;
+            customWorkout.totalExercises = parseInt(customExPerSet.value) || 1;
+            
+            const workSec = parseInt(customWorkSets.value) || 0;
+            customWorkout.workDuration = workSec;
+            
+            const restSec = parseInt(customRestSets.value) || 0;
+            customWorkout.restDuration = restSec;
+            
+            const breakSec = parseInt(customSetBreak.value) || 0;
+            customWorkout.breakDuration = breakSec;
+            
+        } else if (customType === 'simple') {
+            customWorkout.totalRounds = parseInt(customSimpleRounds.value) || 1;
+            
+            const workMins = parseInt(customWorkMin.value) || 0;
+            const workSecs = parseInt(customWorkSec.value) || 0;
+            customWorkout.workDuration = (workMins * 60) + workSecs;
+            
+            const restSecs = parseInt(customRestSimple.value) || 0;
+            customWorkout.restDuration = restSecs;
+        }
+        
+        customWorkout.currentRound = 1;
+        customWorkout.currentSet = 1;
+        customWorkout.currentExercise = 1;
+        customWorkout.phase = 'work';
+        customTimerValue = customWorkout.workDuration;
+        customPausedTime = null;
+        
+        updateCustomTimerDisplay();
+        updateCustomStructureInfo();
+    }
+
+    function nextCustomPhase() {
+        if (customWorkout.type === 'simple') {
+            if (customWorkout.phase === 'work') {
+                customWorkout.phase = 'rest';
+                customTimerValue = customWorkout.restDuration;
+            } else if (customWorkout.phase === 'rest') {
+                if (customWorkout.currentRound < customWorkout.totalRounds) {
+                    customWorkout.currentRound++;
+                    customWorkout.phase = 'work';
+                    customTimerValue = customWorkout.workDuration;
+                } else {
+                    stopCustomWorkout();
+                    return;
+                }
+            }
+        } else if (customWorkout.type === 'sets') {
+            if (customWorkout.phase === 'work') {
+                customWorkout.phase = 'rest';
+                customTimerValue = customWorkout.restDuration;
+            } else if (customWorkout.phase === 'rest') {
+                if (customWorkout.currentExercise < customWorkout.totalExercises) {
+                    customWorkout.currentExercise++;
+                    customWorkout.phase = 'work';
+                    customTimerValue = customWorkout.workDuration;
+                } else {
+                    if (customWorkout.currentSet < customWorkout.totalSets) {
+                        customWorkout.currentSet++;
+                        customWorkout.currentExercise = 1;
+                        customWorkout.phase = 'break';
+                        customTimerValue = customWorkout.breakDuration;
+                    } else {
+                        stopCustomWorkout();
+                        return;
+                    }
+                }
+            } else if (customWorkout.phase === 'break') {
+                customWorkout.phase = 'work';
+                customTimerValue = customWorkout.workDuration;
+            }
+        } else if (customWorkout.type === 'rounds') {
+            if (customWorkout.phase === 'work') {
+                customWorkout.phase = 'rest';
+                customTimerValue = customWorkout.restDuration;
+            } else if (customWorkout.phase === 'rest') {
+                if (customWorkout.currentExercise < customWorkout.totalExercises) {
+                    customWorkout.currentExercise++;
+                    customWorkout.phase = 'work';
+                    customTimerValue = customWorkout.workDuration;
+                } else {
+                    if (customWorkout.currentSet < customWorkout.totalSets) {
+                        customWorkout.currentSet++;
+                        customWorkout.currentExercise = 1;
+                        customWorkout.phase = 'work';
+                        customTimerValue = customWorkout.workDuration;
+                    } else {
+                        if (customWorkout.currentRound < customWorkout.totalRounds) {
+                            customWorkout.currentRound++;
+                            customWorkout.currentSet = 1;
+                            customWorkout.currentExercise = 1;
+                            customWorkout.phase = 'break';
+                            customTimerValue = customWorkout.breakDuration;
+                        } else {
+                            stopCustomWorkout();
+                            return;
+                        }
+                    }
+                }
+            } else if (customWorkout.phase === 'break') {
+                customWorkout.phase = 'work';
+                customTimerValue = customWorkout.workDuration;
+            }
+        }
+        
+        updatePhaseStatus();
+        updateCustomStructureInfo();
+        updateCustomTimerDisplay();
+    }
+
+    function stopCustomWorkout() {
+        if (customTimerInterval) {
+            clearInterval(customTimerInterval);
+            customTimerInterval = null;
+        }
+        customTimerRunning = false;
+        setCustomStatus('standby');
+        structureInfo.innerHTML = '<span class="progress-item">Complete!</span>';
     }
 
     // ========== PRESET FUNCTIONS ==========
@@ -573,7 +801,7 @@
         if (currentMode === 'presets' && activePreset) {
             loadPreset(activePreset);
         } else if (currentMode === 'custom') {
-            loadCustomTimer();
+            // Custom timer reset handled separately
         } else if (currentMode === 'stopwatch') {
             workout.timeLeft = 0;
             workout.type = 'stopwatch';
@@ -586,54 +814,60 @@
         statusMsg.innerText = '↺ reset · ready';
     }
 
-    function loadCustomTimer() {
-        // Determine which custom tab is active
-        const activeCustomTab = document.querySelector('.custom-tab-btn.active');
-        const customType = activeCustomTab ? activeCustomTab.dataset.customType : 'rounds';
+    // ========== STOPWATCH FUNCTIONS ==========
+    function startStopwatch() {
+        if (stopwatchRunning) return;
         
-        workout.type = customType;
-        
-        if (customType === 'rounds') {
-            workout.totalRounds = parseInt(customRounds.value) || 4;
-            workout.totalExercises = parseInt(customExPerRound.value) || 4;
-            workout.totalSets = parseInt(customSetsPerEx.value) || 2;
-            workout.currentRound = 1;
-            workout.currentExercise = 1;
-            workout.currentSet = 1;
-            workout.workDuration = parseInt(customWorkRounds.value) || 20;
-            workout.restDuration = parseInt(customRestRounds.value) || 10;
-            workout.breakDuration = parseInt(customRoundBreak.value) || 30;
-            workout.timeLeft = workout.workDuration;
-            workout.phase = 'work';
-            structureInfo.innerText = `${workout.totalRounds} rounds · ${workout.totalExercises} exercises · ${workout.totalSets} sets`;
+        stopwatchRunning = true;
+        stopwatchInterval = setInterval(() => {
+            stopwatchTime += 0.01; // Increment by 10ms
             
-        } else if (customType === 'sets') {
-            workout.totalSetGroups = parseInt(customSets.value) || 3;
-            workout.totalExercises = parseInt(customExPerSet.value) || 8;
-            workout.currentSetGroup = 1;
-            workout.currentExercise = 1;
-            workout.workDuration = parseInt(customWorkSets.value) || 40;
-            workout.restDuration = parseInt(customRestSets.value) || 20;
-            workout.breakDuration = parseInt(customSetBreak.value) || 60;
-            workout.timeLeft = workout.workDuration;
-            workout.phase = 'work';
-            structureInfo.innerText = `${workout.totalSetGroups} sets · ${workout.totalExercises} exercises each`;
+            // Check if we've reached 744 hours
+            if (stopwatchTime >= MONTH_THRESHOLD) {
+                stopwatchMonthCounter++;
+                stopwatchTime = 0;
+                
+                // Update month counter display
+                const monthCounter = document.getElementById('monthCounter');
+                if (stopwatchMonthCounter > 0) {
+                    monthCounter.textContent = `${stopwatchMonthCounter} month${stopwatchMonthCounter > 1 ? 's' : ''} +`;
+                    monthCounter.classList.add('visible');
+                }
+            }
             
-        } else if (customType === 'simple') {
-            const workMins = parseInt(customWorkMin.value) || 0;
-            const workSecs = parseInt(customWorkSec.value) || 0;
-            workout.totalRounds = parseInt(customSimpleRounds.value) || 1;
-            workout.currentRound = 1;
-            workout.workDuration = (workMins * 60) + workSecs;
-            workout.restDuration = parseInt(customRestSimple.value) || 0;
-            workout.timeLeft = workout.workDuration;
-            workout.phase = 'work';
-            structureInfo.innerText = `${Math.floor(workout.workDuration/60)}:${(workout.workDuration%60).toString().padStart(2,'0')} work · ${workout.restDuration}s rest · ${workout.totalRounds} rounds`;
-        }
+            updateStopwatchDisplay();
+        }, 10); // Update every 10ms for smooth milliseconds
         
-        updateDisplay();
-        updateInfoDisplays();
-        statusMsg.innerText = '✨ custom timer loaded';
+        statusMsg.innerText = '▶️ Running...';
+        statusMsg.className = 'status-badge running';
+    }
+
+    function pauseStopwatch() {
+        if (!stopwatchRunning) return;
+        
+        clearInterval(stopwatchInterval);
+        stopwatchRunning = false;
+        statusMsg.innerText = '⏸ Paused';
+        statusMsg.className = 'status-badge paused';
+    }
+
+    function resetStopwatch() {
+        clearInterval(stopwatchInterval);
+        stopwatchRunning = false;
+        stopwatchTime = 0;
+        stopwatchMonthCounter = 0;
+        
+        const monthCounter = document.getElementById('monthCounter');
+        monthCounter.textContent = '';
+        monthCounter.classList.remove('visible');
+        
+        updateStopwatchDisplay();
+        statusMsg.innerText = '✅ Reset — Ready';
+        statusMsg.className = 'status-badge reset';
+    }
+
+    function updateStopwatchDisplay() {
+        timerDisplay.innerText = formatTime(stopwatchTime, true);
     }
 
     // ========== EVENT LISTENERS ==========
@@ -691,9 +925,8 @@
                 
             } else if (tab === 'custom') {
                 structureInfo.style.display = 'block';
-                loadCustomTimer();
-                statusMsg.innerText = 'ready';
-                statusMsg.className = 'status-badge';
+                loadCustomWorkoutFromFields();
+                setCustomStatus('standby');
                 
             } else {
                 structureInfo.style.display = 'block';
@@ -724,7 +957,8 @@
             customSimplePanel.style.display = type === 'simple' ? 'block' : 'none';
             
             if (currentMode === 'custom') {
-                loadCustomTimer();
+                loadCustomWorkoutFromFields();
+                setCustomStatus('standby');
             }
         });
     });
@@ -733,6 +967,27 @@
     startBtn.addEventListener('click', () => {
         if (currentMode === 'stopwatch') {
             startStopwatch();
+        } else if (currentMode === 'custom') {
+            if (!customTimerRunning) {
+                if (customPausedTime !== null) {
+                    customTimerValue = customPausedTime;
+                    customPausedTime = null;
+                }
+                
+                customTimerRunning = true;
+                setCustomStatus('running');
+                
+                if (customTimerInterval) clearInterval(customTimerInterval);
+                customTimerInterval = setInterval(() => {
+                    customTimerValue -= 0.01;
+                    
+                    if (customTimerValue <= 0) {
+                        nextCustomPhase();
+                    }
+                    
+                    updateCustomTimerDisplay();
+                }, 10);
+            }
         } else {
             startTimer();
         }
@@ -741,6 +996,14 @@
     pauseBtn.addEventListener('click', () => {
         if (currentMode === 'stopwatch') {
             pauseStopwatch();
+        } else if (currentMode === 'custom') {
+            if (customTimerRunning) {
+                clearInterval(customTimerInterval);
+                customTimerInterval = null;
+                customTimerRunning = false;
+                customPausedTime = customTimerValue;
+                setCustomStatus('paused');
+            }
         } else {
             pauseTimer();
         }
@@ -749,6 +1012,20 @@
     resetBtn.addEventListener('click', () => {
         if (currentMode === 'stopwatch') {
             resetStopwatch();
+        } else if (currentMode === 'custom') {
+            if (customTimerRunning) {
+                clearInterval(customTimerInterval);
+                customTimerInterval = null;
+                customTimerRunning = false;
+            }
+            
+            loadCustomWorkoutFromFields();
+            customPausedTime = null;
+            setCustomStatus('reset');
+            
+            setTimeout(() => {
+                if (!customTimerRunning) setCustomStatus('standby');
+            }, 1000);
         } else {
             resetTimer();
         }
@@ -765,69 +1042,27 @@
         if (input) {
             input.addEventListener('change', () => {
                 if (currentMode === 'custom') {
-                    loadCustomTimer();
+                    loadCustomWorkoutFromFields();
+                    setCustomStatus('standby');
                 }
             });
         }
     });
 
-        // ========== STOPWATCH FUNCTIONS ==========
-    function startStopwatch() {
-        if (stopwatchRunning) return;
-        
-        stopwatchRunning = true;
-        stopwatchInterval = setInterval(() => {
-            stopwatchTime += 0.01; // Increment by 10ms
-            
-            // Check if we've reached 744 hours
-            if (stopwatchTime >= MONTH_THRESHOLD) {
-                stopwatchMonthCounter++;
-                stopwatchTime = 0;
-                
-                // Update month counter display
-                const monthCounter = document.getElementById('monthCounter');
-                if (stopwatchMonthCounter > 0) {
-                    monthCounter.textContent = `${stopwatchMonthCounter} month${stopwatchMonthCounter > 1 ? 's' : ''} +`;
-                    monthCounter.classList.add('visible');
-                }
-            }
-            
-            updateStopwatchDisplay();
-        }, 10); // Update every 10ms for smooth milliseconds
-        
-        statusMsg.innerText = '▶️ Running...';
-        statusMsg.className = 'status-badge running';
-    }
-
-    function pauseStopwatch() {
-        if (!stopwatchRunning) return;
-        
-        clearInterval(stopwatchInterval);
-        stopwatchRunning = false;
-        statusMsg.innerText = '⏸ Paused';
-        statusMsg.className = 'status-badge paused';
-    }
-
-    function resetStopwatch() {
-        clearInterval(stopwatchInterval);
-        stopwatchRunning = false;
-        stopwatchTime = 0;
-        stopwatchMonthCounter = 0;
-        
-        const monthCounter = document.getElementById('monthCounter');
-        monthCounter.textContent = '';
-        monthCounter.classList.remove('visible');
-        
-        updateStopwatchDisplay();
-        statusMsg.innerText = '✅ Reset — Ready';
-        statusMsg.className = 'status-badge reset';
-    }
-
-    function updateStopwatchDisplay() {
-        timerDisplay.innerText = formatTime(stopwatchTime, true);
-    }
+    // Input validation for minutes/seconds
+    [customWorkMin, customWorkSec].forEach(input => {
+        if (input) {
+            input.addEventListener('input', function() {
+                let val = this.value.replace(/[^0-9]/g, '');
+                if (val.length > 2) val = val.slice(0, 2);
+                if (parseInt(val) > 59) val = '59';
+                this.value = val;
+            });
+        }
+    });
 
     // ========== INITIALIZATION ==========
     renderPresets('all');
     loadPreset(presets[0]); // Load AMRAP by default
+    setCustomStatus('standby');
 })();
