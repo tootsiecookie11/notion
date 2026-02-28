@@ -104,25 +104,21 @@
     let timerInterval = null;
     let isRunning = false;
     
-    // Timer state
-    let timerValue = 0;
-    let timerRunning = false;
-    let pausedTime = null;
-    
-    // Workout state
+    // Current workout state
     let workout = {
         type: 'simple',
-        phase: 'work',
+        // For roundsBased
         currentRound: 1,
         totalRounds: 1,
-        currentSet: 1,
-        totalSets: 1,
         currentExercise: 1,
         totalExercises: 1,
+        currentSet: 1,
+        totalSets: 1,
         // For setsBased
         currentSetGroup: 1,
         totalSetGroups: 1,
         // Timing
+        phase: 'work', // work, rest, roundBreak, setBreak
         timeLeft: 0,
         workDuration: 0,
         restDuration: 0,
@@ -131,17 +127,19 @@
         pyramidCurrentWork: 20
     };
 
-    // Stopwatch variables
-    let stopwatchTime = 0;
+        // ========== STOPWATCH VARIABLES ==========
+    let stopwatchTime = 0; // in seconds
     let stopwatchRunning = false;
     let stopwatchInterval = null;
     let stopwatchMonthCounter = 0;
-    const MONTH_THRESHOLD = 744 * 60 * 60;
+    const MONTH_THRESHOLD = 744 * 60 * 60; // 744 hours in seconds
 
     // DOM elements
     const timerDisplay = document.getElementById('timerDisplay');
-    const statusBadge = document.getElementById('statusBadge');
+    const roundDisplay = document.getElementById('roundDisplay');
     const structureInfo = document.getElementById('structureInfo');
+    const exerciseInfo = document.getElementById('exerciseInfo');
+    const statusMsg = document.getElementById('statusMessage');
     const presetsGrid = document.getElementById('presetsGrid');
     const startBtn = document.getElementById('startBtn');
     const pauseBtn = document.getElementById('pauseBtn');
@@ -187,6 +185,7 @@
         if (seconds < 0) seconds = 0;
         
         if (showMilliseconds) {
+            // For stopwatch: show with milliseconds
             const totalSeconds = Math.floor(seconds);
             const milliseconds = Math.floor((seconds - totalSeconds) * 100);
             const hours = Math.floor(totalSeconds / 3600);
@@ -199,92 +198,42 @@
                 return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${milliseconds.toString().padStart(2, '0')}`;
             }
         } else {
+            // For regular timer
             const mins = Math.floor(seconds / 60);
             const secs = seconds % 60;
             return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
     }
 
-    function updateTimerDisplay() {
-        timerDisplay.textContent = formatTime(timerValue, currentMode === 'stopwatch');
+    function updateDisplay() {
+        timerDisplay.innerText = formatTime(workout.timeLeft);
+    }
+
+    function updateInfoDisplays() {
+        // Update round info
+        let roundText = '';
+        if (workout.type === 'roundsBased') {
+            roundText = `round ${workout.currentRound}/${workout.totalRounds} · ex ${workout.currentExercise}/${workout.totalExercises} · set ${workout.currentSet}/${workout.totalSets}`;
+        } else if (workout.type === 'setsBased') {
+            roundText = `set ${workout.currentSetGroup}/${workout.totalSetGroups} · ex ${workout.currentExercise}/${workout.totalExercises}`;
+        } else if (workout.type === 'pyramid') {
+            roundText = `round ${workout.currentRound}/${workout.totalRounds} · ex ${workout.currentExercise}/${workout.totalExercises}`;
+        } else if (workout.type === 'density') {
+            roundText = `block ${workout.currentRound}/${workout.totalRounds} · ex ${workout.currentExercise}/${workout.totalExercises}`;
+        } else if (workout.type === 'amrap' || workout.type === 'simple') {
+            roundText = `round ${workout.currentRound}/${workout.totalRounds}`;
+        }
         
-        if (timerValue < 5 && timerValue > 0 && currentMode !== 'stopwatch') {
-            timerDisplay.classList.add('warning');
+        if (workout.phase) {
+            roundText += ` · ${workout.phase}`;
+        }
+        roundDisplay.innerText = roundText;
+
+        // Update exercise info
+        if (workout.type !== 'amrap' && workout.type !== 'simple' && workout.totalExercises > 1) {
+            exerciseInfo.innerText = `exercise ${workout.currentExercise} of ${workout.totalExercises}`;
         } else {
-            timerDisplay.classList.remove('warning');
-        }
-    }
-
-    function updateStructureInfo() {
-        if (currentMode === 'stopwatch') {
-            const monthCounter = document.getElementById('monthCounter');
-            if (stopwatchMonthCounter > 0) {
-                structureInfo.innerHTML = `<span class="progress-item">${stopwatchMonthCounter} month${stopwatchMonthCounter > 1 ? 's' : ''} +</span>`;
-            } else {
-                structureInfo.innerHTML = '<span class="progress-item">Stopwatch</span>';
-            }
-            return;
-        }
-        
-        let html = '';
-        
-        if (workout.type === 'simple') {
-            html = `Round ${workout.currentRound} / ${workout.totalRounds}`;
-        } else if (workout.type === 'sets') {
-            html = `Set ${workout.currentSetGroup} / ${workout.totalSetGroups} │ Ex ${workout.currentExercise} / ${workout.totalExercises}`;
-        } else if (workout.type === 'rounds') {
-            html = `Round ${workout.currentRound} / ${workout.totalRounds} │ Set ${workout.currentSet} / ${workout.totalSets} │ Ex ${workout.currentExercise} / ${workout.totalExercises}`;
-        } else {
-            html = 'Ready';
-        }
-        
-        structureInfo.innerHTML = `<span class="progress-item">${html}</span>`;
-    }
-
-    function updatePhaseStatus() {
-        if (workout.phase === 'work') {
-            statusBadge.textContent = '▶ WORK';
-        } else if (workout.phase === 'rest') {
-            statusBadge.textContent = '▶ REST';
-        } else if (workout.phase === 'break') {
-            statusBadge.textContent = '▶ BREAK';
-        }
-    }
-
-    function startBlinking() {
-        statusBadge.classList.add('blinking');
-    }
-
-    function stopBlinking() {
-        statusBadge.classList.remove('blinking');
-    }
-
-    function setStatus(status) {
-        stopBlinking();
-        
-        if (currentMode === 'stopwatch') {
-            // Stopwatch status messages
-            if (status === 'standby') {
-                statusBadge.textContent = '⚪ Standby';
-            } else if (status === 'running') {
-                statusBadge.textContent = '⏱️ Running...';
-            } else if (status === 'paused') {
-                statusBadge.textContent = '⏸ Paused';
-            } else if (status === 'reset') {
-                statusBadge.textContent = '↺ Reset — Ready';
-            }
-        } else {
-            // Workout timer status messages
-            if (status === 'standby') {
-                statusBadge.textContent = '⚪ Standby';
-            } else if (status === 'paused') {
-                statusBadge.textContent = '⏸ Paused';
-            } else if (status === 'reset') {
-                statusBadge.textContent = '↺ Reset — Ready';
-            } else if (status === 'running') {
-                updatePhaseStatus();
-                startBlinking();
-            }
+            exerciseInfo.innerText = '';
         }
     }
 
@@ -293,7 +242,6 @@
             clearInterval(timerInterval);
             timerInterval = null;
         }
-        timerRunning = false;
         isRunning = false;
     }
 
@@ -311,17 +259,17 @@
     function loadPreset(preset) {
         activePreset = preset;
         stopTimer();
-        setStatus('standby');
         
+        // Set workout type and initialize state
         workout.type = preset.type;
         
         if (preset.type === 'amrap') {
             workout.totalRounds = 1;
             workout.currentRound = 1;
             workout.workDuration = preset.duration;
-            timerValue = preset.duration;
+            workout.timeLeft = preset.duration;
             workout.phase = 'work';
-            structureInfo.innerHTML = '<span class="progress-item">AMRAP · 20 min</span>';
+            structureInfo.innerText = 'AMRAP · as many rounds as possible in 20 min';
             
         } else if (preset.type === 'roundsBased') {
             workout.totalRounds = preset.rounds;
@@ -333,9 +281,9 @@
             workout.workDuration = preset.work;
             workout.restDuration = preset.rest;
             workout.breakDuration = preset.roundBreak || 0;
-            timerValue = preset.work;
+            workout.timeLeft = preset.work;
             workout.phase = 'work';
-            updateStructureInfo();
+            structureInfo.innerText = `${preset.rounds} rounds · ${preset.exercisesPerRound} exercises · ${preset.setsPerExercise} sets each`;
             
         } else if (preset.type === 'setsBased') {
             workout.totalSetGroups = preset.sets;
@@ -345,9 +293,9 @@
             workout.workDuration = preset.work;
             workout.restDuration = preset.rest;
             workout.breakDuration = preset.setBreak || 0;
-            timerValue = preset.work;
+            workout.timeLeft = preset.work;
             workout.phase = 'work';
-            updateStructureInfo();
+            structureInfo.innerText = `${preset.sets} sets · ${preset.exercisesPerSet} exercises per set`;
             
         } else if (preset.type === 'pyramid') {
             workout.totalRounds = preset.rounds;
@@ -360,9 +308,9 @@
             workout.pyramidPeakRound = preset.pyramidPeakRound;
             workout.pyramidCurrentWork = preset.pyramidBase;
             workout.workDuration = preset.pyramidBase;
-            timerValue = preset.pyramidBase;
+            workout.timeLeft = preset.pyramidBase;
             workout.phase = 'work';
-            updateStructureInfo();
+            structureInfo.innerText = `pyramid · work 20→50→20 · ${preset.rest}s rest`;
             
         } else if (preset.type === 'density') {
             workout.totalRounds = preset.rounds;
@@ -371,69 +319,321 @@
             workout.currentExercise = 1;
             workout.workDuration = preset.blockDuration;
             workout.breakDuration = preset.roundBreak;
-            timerValue = preset.blockDuration;
+            workout.timeLeft = preset.blockDuration;
             workout.phase = 'work';
-            updateStructureInfo();
+            structureInfo.innerText = `${preset.rounds} blocks · ${preset.exercisesPerRound} exercises · ${Math.floor(preset.blockDuration/60)} min each`;
             
         } else if (preset.type === 'simple') {
             workout.totalRounds = preset.rounds || 1;
             workout.currentRound = 1;
             workout.workDuration = preset.work;
             workout.restDuration = preset.rest || 0;
-            timerValue = preset.work;
+            workout.timeLeft = preset.work;
             workout.phase = 'work';
-            updateStructureInfo();
+            structureInfo.innerText = `${preset.work}s work · ${preset.rest || 0}s rest · ${preset.rounds || 1} rounds`;
         }
         
-        updateTimerDisplay();
-        statusBadge.textContent = `📌 loaded: ${preset.name}`;
+        updateDisplay();
+        updateInfoDisplays();
+        statusMsg.innerText = `📌 loaded: ${preset.name}`;
     }
 
-    // ========== STOPWATCH FUNCTIONS ==========
-    function startStopwatch() {
-        if (stopwatchRunning) return;
+    // ========== TIMER LOGIC ==========
+    function nextPhase() {
+        if (workout.type === 'amrap') {
+            // AMRAP just counts down, when it hits 0, workout is done
+            if (workout.timeLeft <= 0) {
+                stopTimer();
+                statusMsg.innerText = '✅ AMRAP complete!';
+                return;
+            }
+        }
         
-        stopwatchRunning = true;
-        stopwatchInterval = setInterval(() => {
-            stopwatchTime += 0.01;
-            
-            if (stopwatchTime >= MONTH_THRESHOLD) {
-                stopwatchMonthCounter++;
-                stopwatchTime = 0;
-                
-                const monthCounter = document.getElementById('monthCounter');
-                if (stopwatchMonthCounter > 0) {
-                    monthCounter.textContent = `${stopwatchMonthCounter} month${stopwatchMonthCounter > 1 ? 's' : ''} +`;
-                    monthCounter.classList.add('visible');
+        else if (workout.type === 'roundsBased') {
+            if (workout.phase === 'work') {
+                // Move to rest
+                workout.phase = 'rest';
+                workout.timeLeft = workout.restDuration;
+            } 
+            else if (workout.phase === 'rest') {
+                // After rest, move to next exercise/set/round
+                if (workout.currentSet < workout.totalSets) {
+                    // Same exercise, next set
+                    workout.currentSet++;
+                    workout.phase = 'work';
+                    workout.timeLeft = workout.workDuration;
+                } 
+                else {
+                    // All sets for this exercise done, move to next exercise
+                    workout.currentSet = 1;
+                    
+                    if (workout.currentExercise < workout.totalExercises) {
+                        // Next exercise in same round
+                        workout.currentExercise++;
+                        workout.phase = 'work';
+                        workout.timeLeft = workout.workDuration;
+                    } 
+                    else {
+                        // All exercises in round done
+                        if (workout.currentRound < workout.totalRounds) {
+                            // Move to next round with break
+                            workout.currentRound++;
+                            workout.currentExercise = 1;
+                            workout.phase = 'roundBreak';
+                            workout.timeLeft = workout.breakDuration;
+                        } 
+                        else {
+                            // Workout complete
+                            stopTimer();
+                            statusMsg.innerText = '🎉 workout complete!';
+                            return;
+                        }
+                    }
+                }
+            } 
+            else if (workout.phase === 'roundBreak') {
+                // After round break, start next round
+                workout.phase = 'work';
+                workout.timeLeft = workout.workDuration;
+            }
+        }
+        
+        else if (workout.type === 'setsBased') {
+            if (workout.phase === 'work') {
+                // Move to rest
+                workout.phase = 'rest';
+                workout.timeLeft = workout.restDuration;
+            } 
+            else if (workout.phase === 'rest') {
+                // After rest, move to next exercise or set
+                if (workout.currentExercise < workout.totalExercises) {
+                    // Next exercise in same set
+                    workout.currentExercise++;
+                    workout.phase = 'work';
+                    workout.timeLeft = workout.workDuration;
+                } 
+                else {
+                    // All exercises in set done
+                    if (workout.currentSetGroup < workout.totalSetGroups) {
+                        // Move to next set with break
+                        workout.currentSetGroup++;
+                        workout.currentExercise = 1;
+                        workout.phase = 'setBreak';
+                        workout.timeLeft = workout.breakDuration;
+                    } 
+                    else {
+                        // Workout complete
+                        stopTimer();
+                        statusMsg.innerText = '🎉 workout complete!';
+                        return;
+                    }
+                }
+            } 
+            else if (workout.phase === 'setBreak') {
+                // After set break, start next set
+                workout.phase = 'work';
+                workout.timeLeft = workout.workDuration;
+            }
+        }
+        
+        else if (workout.type === 'pyramid') {
+            if (workout.phase === 'work') {
+                // Move to rest
+                workout.phase = 'rest';
+                workout.timeLeft = workout.restDuration;
+            } 
+            else if (workout.phase === 'rest') {
+                // After rest, move to next exercise or round
+                if (workout.currentExercise < workout.totalExercises) {
+                    // Next exercise in same round
+                    workout.currentExercise++;
+                    
+                    // Update pyramid work time based on round
+                    if (workout.currentRound <= workout.pyramidPeakRound) {
+                        workout.workDuration = workout.pyramidBase + (workout.currentRound - 1) * 10;
+                    } else {
+                        workout.workDuration = workout.pyramidPeak - (workout.currentRound - workout.pyramidPeakRound) * 10;
+                    }
+                    
+                    workout.phase = 'work';
+                    workout.timeLeft = workout.workDuration;
+                } 
+                else {
+                    // All exercises in round done
+                    if (workout.currentRound < workout.totalRounds) {
+                        // Move to next round
+                        workout.currentRound++;
+                        workout.currentExercise = 1;
+                        
+                        // Update work time for new round
+                        if (workout.currentRound <= workout.pyramidPeakRound) {
+                            workout.workDuration = workout.pyramidBase + (workout.currentRound - 1) * 10;
+                        } else {
+                            workout.workDuration = workout.pyramidPeak - (workout.currentRound - workout.pyramidPeakRound) * 10;
+                        }
+                        
+                        workout.phase = 'work';
+                        workout.timeLeft = workout.workDuration;
+                    } 
+                    else {
+                        // Workout complete
+                        stopTimer();
+                        statusMsg.innerText = '🎉 pyramid complete!';
+                        return;
+                    }
                 }
             }
+        }
+        
+        else if (workout.type === 'density') {
+            if (workout.phase === 'work') {
+                // Block time is up, move to next exercise within block? 
+                // For density, each block is continuous work through exercises
+                if (workout.currentExercise < workout.totalExercises) {
+                    workout.currentExercise++;
+                    workout.timeLeft = workout.workDuration; // Reset block timer? No, block continues
+                    // Actually for density, it's continuous, so we don't change timeLeft
+                    // Just update the exercise display
+                } else {
+                    // All exercises in block done
+                    if (workout.currentRound < workout.totalRounds) {
+                        workout.currentRound++;
+                        workout.currentExercise = 1;
+                        workout.phase = 'roundBreak';
+                        workout.timeLeft = workout.breakDuration;
+                    } else {
+                        stopTimer();
+                        statusMsg.innerText = '🎉 density complete!';
+                        return;
+                    }
+                }
+            } else if (workout.phase === 'roundBreak') {
+                workout.phase = 'work';
+                workout.timeLeft = workout.workDuration;
+            }
+        }
+        
+        else if (workout.type === 'simple') {
+            if (workout.phase === 'work') {
+                if (workout.restDuration > 0) {
+                    workout.phase = 'rest';
+                    workout.timeLeft = workout.restDuration;
+                } else if (workout.currentRound < workout.totalRounds) {
+                    workout.currentRound++;
+                    workout.timeLeft = workout.workDuration;
+                } else {
+                    stopTimer();
+                    statusMsg.innerText = '✅ complete!';
+                    return;
+                }
+            } else if (workout.phase === 'rest') {
+                if (workout.currentRound < workout.totalRounds) {
+                    workout.currentRound++;
+                    workout.phase = 'work';
+                    workout.timeLeft = workout.workDuration;
+                } else {
+                    stopTimer();
+                    statusMsg.innerText = '✅ complete!';
+                    return;
+                }
+            }
+        }
+        
+        updateDisplay();
+        updateInfoDisplays();
+    }
+
+    function startTimer() {
+        if (isRunning) return;
+        if (timerInterval) clearInterval(timerInterval);
+        isRunning = true;
+        statusMsg.innerText = '▶ running';
+
+        timerInterval = setInterval(() => {
+            if (workout.timeLeft <= 0) {
+                nextPhase();
+            } else {
+                workout.timeLeft--;
+                updateDisplay();
+            }
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        if (!isRunning) return;
+        clearInterval(timerInterval);
+        timerInterval = null;
+        isRunning = false;
+        statusMsg.innerText = '⏸ paused';
+    }
+
+    function resetTimer() {
+        stopTimer();
+        
+        if (currentMode === 'presets' && activePreset) {
+            loadPreset(activePreset);
+        } else if (currentMode === 'custom') {
+            loadCustomTimer();
+        } else if (currentMode === 'stopwatch') {
+            workout.timeLeft = 0;
+            workout.type = 'stopwatch';
+            roundDisplay.innerText = 'stopwatch';
+            exerciseInfo.innerText = '';
+            structureInfo.innerText = '';
+            updateDisplay();
+        }
+        
+        statusMsg.innerText = '↺ reset · ready';
+    }
+
+    function loadCustomTimer() {
+        // Determine which custom tab is active
+        const activeCustomTab = document.querySelector('.custom-tab-btn.active');
+        const customType = activeCustomTab ? activeCustomTab.dataset.customType : 'rounds';
+        
+        workout.type = customType;
+        
+        if (customType === 'rounds') {
+            workout.totalRounds = parseInt(customRounds.value) || 4;
+            workout.totalExercises = parseInt(customExPerRound.value) || 4;
+            workout.totalSets = parseInt(customSetsPerEx.value) || 2;
+            workout.currentRound = 1;
+            workout.currentExercise = 1;
+            workout.currentSet = 1;
+            workout.workDuration = parseInt(customWorkRounds.value) || 20;
+            workout.restDuration = parseInt(customRestRounds.value) || 10;
+            workout.breakDuration = parseInt(customRoundBreak.value) || 30;
+            workout.timeLeft = workout.workDuration;
+            workout.phase = 'work';
+            structureInfo.innerText = `${workout.totalRounds} rounds · ${workout.totalExercises} exercises · ${workout.totalSets} sets`;
             
-            timerDisplay.textContent = formatTime(stopwatchTime, true);
-        }, 10);
+        } else if (customType === 'sets') {
+            workout.totalSetGroups = parseInt(customSets.value) || 3;
+            workout.totalExercises = parseInt(customExPerSet.value) || 8;
+            workout.currentSetGroup = 1;
+            workout.currentExercise = 1;
+            workout.workDuration = parseInt(customWorkSets.value) || 40;
+            workout.restDuration = parseInt(customRestSets.value) || 20;
+            workout.breakDuration = parseInt(customSetBreak.value) || 60;
+            workout.timeLeft = workout.workDuration;
+            workout.phase = 'work';
+            structureInfo.innerText = `${workout.totalSetGroups} sets · ${workout.totalExercises} exercises each`;
+            
+        } else if (customType === 'simple') {
+            const workMins = parseInt(customWorkMin.value) || 0;
+            const workSecs = parseInt(customWorkSec.value) || 0;
+            workout.totalRounds = parseInt(customSimpleRounds.value) || 1;
+            workout.currentRound = 1;
+            workout.workDuration = (workMins * 60) + workSecs;
+            workout.restDuration = parseInt(customRestSimple.value) || 0;
+            workout.timeLeft = workout.workDuration;
+            workout.phase = 'work';
+            structureInfo.innerText = `${Math.floor(workout.workDuration/60)}:${(workout.workDuration%60).toString().padStart(2,'0')} work · ${workout.restDuration}s rest · ${workout.totalRounds} rounds`;
+        }
         
-        setStatus('running');
-    }
-
-    function pauseStopwatch() {
-        if (!stopwatchRunning) return;
-        
-        clearInterval(stopwatchInterval);
-        stopwatchRunning = false;
-        setStatus('paused');
-    }
-
-    function resetStopwatch() {
-        clearInterval(stopwatchInterval);
-        stopwatchRunning = false;
-        stopwatchTime = 0;
-        stopwatchMonthCounter = 0;
-        
-        const monthCounter = document.getElementById('monthCounter');
-        monthCounter.textContent = '';
-        monthCounter.classList.remove('visible');
-        
-        timerDisplay.textContent = formatTime(0, true);
-        setStatus('reset');
+        updateDisplay();
+        updateInfoDisplays();
+        statusMsg.innerText = '✨ custom timer loaded';
     }
 
     // ========== EVENT LISTENERS ==========
@@ -474,28 +674,40 @@
             customTab.style.display = tab === 'custom' ? 'block' : 'none';
             stopwatchTab.style.display = tab === 'stopwatch' ? 'block' : 'none';
 
+            // Stop any running timers
             stopTimer();
             if (stopwatchRunning) {
                 pauseStopwatch();
             }
             
             if (tab === 'stopwatch') {
+                // Stopwatch mode
                 workout.type = 'stopwatch';
                 resetStopwatch();
-                structureInfo.innerHTML = '<span class="progress-item">Stopwatch</span>';
-                document.getElementById('monthCounter').classList.remove('visible');
+                structureInfo.style.display = 'none';
+                
+                statusMsg.innerText = '⏳ Standby';
+                statusMsg.className = 'status-badge standby';
                 
             } else if (tab === 'custom') {
-                structureInfo.innerHTML = '<span class="progress-item">Custom Timer</span>';
-                statusBadge.textContent = '⚪ Standby';
+                structureInfo.style.display = 'block';
+                loadCustomTimer();
+                statusMsg.innerText = 'ready';
+                statusMsg.className = 'status-badge';
                 
             } else {
+                structureInfo.style.display = 'block';
                 if (activePreset) loadPreset(activePreset);
                 else {
                     renderPresets(activeCategory);
-                    structureInfo.innerHTML = '<span class="progress-item">Ready</span>';
-                    setStatus('standby');
+                    statusMsg.innerText = 'ready · select a preset';
+                    statusMsg.className = 'status-badge';
                 }
+            }
+            
+            // Hide month counter when not in stopwatch mode
+            if (tab !== 'stopwatch') {
+                document.getElementById('monthCounter').classList.remove('visible');
             }
         });
     });
@@ -510,6 +722,10 @@
             customRoundsPanel.style.display = type === 'rounds' ? 'block' : 'none';
             customSetsPanel.style.display = type === 'sets' ? 'block' : 'none';
             customSimplePanel.style.display = type === 'simple' ? 'block' : 'none';
+            
+            if (currentMode === 'custom') {
+                loadCustomTimer();
+            }
         });
     });
 
@@ -518,30 +734,7 @@
         if (currentMode === 'stopwatch') {
             startStopwatch();
         } else {
-            if (!timerRunning) {
-                if (pausedTime !== null) {
-                    timerValue = pausedTime;
-                    pausedTime = null;
-                }
-                timerRunning = true;
-                setStatus('running');
-                
-                if (timerInterval) clearInterval(timerInterval);
-                timerInterval = setInterval(() => {
-                    timerValue -= 0.01;
-                    
-                    if (timerValue <= 0) {
-                        // Handle phase transitions here
-                        // This is simplified - you'd need to implement the full phase logic
-                        timerValue = 0;
-                        clearInterval(timerInterval);
-                        timerRunning = false;
-                        setStatus('standby');
-                    }
-                    
-                    updateTimerDisplay();
-                }, 10);
-            }
+            startTimer();
         }
     });
 
@@ -549,13 +742,7 @@
         if (currentMode === 'stopwatch') {
             pauseStopwatch();
         } else {
-            if (timerRunning) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                timerRunning = false;
-                pausedTime = timerValue;
-                setStatus('paused');
-            }
+            pauseTimer();
         }
     });
 
@@ -563,36 +750,84 @@
         if (currentMode === 'stopwatch') {
             resetStopwatch();
         } else {
-            if (timerRunning) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                timerRunning = false;
-            }
-            timerValue = 0;
-            pausedTime = null;
-            updateTimerDisplay();
-            setStatus('reset');
-            
-            setTimeout(() => {
-                if (!timerRunning) setStatus('standby');
-            }, 1000);
+            resetTimer();
         }
     });
 
-    // Input validation for minutes/seconds
-    [customWorkMin, customWorkSec].forEach(input => {
+    // Custom input change listeners
+    const customInputs = [
+        customRounds, customExPerRound, customSetsPerEx, customWorkRounds, customRestRounds, customRoundBreak,
+        customSets, customExPerSet, customWorkSets, customRestSets, customSetBreak,
+        customRestSimple, customSimpleRounds, customWorkMin, customWorkSec
+    ];
+    
+    customInputs.forEach(input => {
         if (input) {
-            input.addEventListener('input', function() {
-                let val = this.value.replace(/[^0-9]/g, '');
-                if (val.length > 2) val = val.slice(0, 2);
-                if (parseInt(val) > 59) val = '59';
-                this.value = val;
+            input.addEventListener('change', () => {
+                if (currentMode === 'custom') {
+                    loadCustomTimer();
+                }
             });
         }
     });
 
+        // ========== STOPWATCH FUNCTIONS ==========
+    function startStopwatch() {
+        if (stopwatchRunning) return;
+        
+        stopwatchRunning = true;
+        stopwatchInterval = setInterval(() => {
+            stopwatchTime += 0.01; // Increment by 10ms
+            
+            // Check if we've reached 744 hours
+            if (stopwatchTime >= MONTH_THRESHOLD) {
+                stopwatchMonthCounter++;
+                stopwatchTime = 0;
+                
+                // Update month counter display
+                const monthCounter = document.getElementById('monthCounter');
+                if (stopwatchMonthCounter > 0) {
+                    monthCounter.textContent = `${stopwatchMonthCounter} month${stopwatchMonthCounter > 1 ? 's' : ''} +`;
+                    monthCounter.classList.add('visible');
+                }
+            }
+            
+            updateStopwatchDisplay();
+        }, 10); // Update every 10ms for smooth milliseconds
+        
+        statusMsg.innerText = '▶️ Running...';
+        statusMsg.className = 'status-badge running';
+    }
+
+    function pauseStopwatch() {
+        if (!stopwatchRunning) return;
+        
+        clearInterval(stopwatchInterval);
+        stopwatchRunning = false;
+        statusMsg.innerText = '⏸ Paused';
+        statusMsg.className = 'status-badge paused';
+    }
+
+    function resetStopwatch() {
+        clearInterval(stopwatchInterval);
+        stopwatchRunning = false;
+        stopwatchTime = 0;
+        stopwatchMonthCounter = 0;
+        
+        const monthCounter = document.getElementById('monthCounter');
+        monthCounter.textContent = '';
+        monthCounter.classList.remove('visible');
+        
+        updateStopwatchDisplay();
+        statusMsg.innerText = '✅ Reset — Ready';
+        statusMsg.className = 'status-badge reset';
+    }
+
+    function updateStopwatchDisplay() {
+        timerDisplay.innerText = formatTime(stopwatchTime, true);
+    }
+
     // ========== INITIALIZATION ==========
     renderPresets('all');
-    loadPreset(presets[0]);
-    setStatus('standby');
+    loadPreset(presets[0]); // Load AMRAP by default
 })();
