@@ -1094,6 +1094,18 @@
         }
     });
 
+    // Input validation for minutes/seconds
+    [customWorkMin, customWorkSec].forEach(input => {
+        if (input) {
+            input.addEventListener('input', function() {
+                let val = this.value.replace(/[^0-9]/g, '');
+                if (val.length > 2) val = val.slice(0, 2);
+                if (parseInt(val) > 59) val = '59';
+                this.value = val;
+            });
+        }
+    });
+
     // ========== INITIALIZATION ==========
     renderPresets('all');
     loadPreset(presets[0]); // Load AMRAP by default
