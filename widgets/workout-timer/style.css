@@ -402,11 +402,12 @@ body {
 }
 
 .btn-icon {
-    width: 17px;
-    height: 17px;
+    width: 16px;
+    height: 16px;
     stroke: currentColor;
     stroke-width: 14;
     flex-shrink: 0;
+    opacity: 0.9;
 }
 
 .btn-label {
