@@ -407,7 +407,7 @@ body {
     stroke: currentColor;
     stroke-width: 14;
     flex-shrink: 0;
-    opacity: 0.9;
+    overflow: visible;
 }
 
 .btn-label {
