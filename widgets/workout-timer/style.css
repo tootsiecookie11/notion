@@ -383,7 +383,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.4rem;
+    gap: 0.45rem;
     
     background: rgba(230, 253, 255, 0.75);
     border: none;
@@ -402,10 +402,18 @@ body {
 }
 
 .btn-icon {
-    width: 16px;
-    height: 16px;
-    object-fit: contain;
-    display: block;
+    width: 17px;
+    height: 17px;
+    stroke: currentColor;
+    stroke-width: 14;
+    flex-shrink: 0;
+}
+
+.btn-label {
+    font-size: 0.95rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
 }
 
 .btn:active {
