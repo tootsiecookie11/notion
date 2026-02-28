@@ -121,6 +121,10 @@ body {
     display: inline-block;
 }
 
+.time.warning {
+    color: var(--amethyst-smoke);
+}
+
 .round-info {
     font-size: 0.9rem;
     color: var(--deep-teal);
@@ -143,6 +147,11 @@ body {
     border-radius: 30px;
     margin: 0.5rem 0 0.8rem;
     width: 100%;
+    min-height: 2.2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 500;
 }
 
 /* Status badge variations */
@@ -166,16 +175,48 @@ body {
     color: var(--deep-teal);
 }
 
+/* Blinking animation for running state */
+.status-badge.blinking {
+    animation: darkBlink 1s infinite;
+}
+
+@keyframes darkBlink {
+    0%, 100% { 
+        background: rgba(176, 123, 172, 0.12);
+        color: var(--deep-teal);
+    }
+    50% { 
+        background: rgba(95, 115, 103, 0.3);
+        color: #2c3530;
+    }
+}
+
 /* structure info */
 .structure-info {
     text-align: center;
     font-size: 0.8rem;
     color: var(--deep-teal);
     margin: 0.3rem 0 0.8rem;
-    
     background: rgba(176, 123, 172, 0.12);
     padding: 0.4rem;
     border-radius: 20px;
+    min-height: 2.2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.progress-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.progress-divider {
+    opacity: 0.3;
+    margin: 0 0.2rem;
 }
 
 /* preset category pills - touch optimized */
@@ -329,6 +370,17 @@ body {
     touch-action: manipulation;
 }
 
+.input-group input:focus {
+    outline: none;
+    border-color: var(--amethyst-smoke);
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.input-group input.error {
+    border-color: var(--amethyst-smoke);
+    background: rgba(176, 123, 172, 0.1);
+}
+
 /* custom time input group */
 .time-input-group {
     display: flex;
@@ -410,17 +462,43 @@ body {
     overflow: visible;
 }
 
-.btn-label {
-    font-size: 0.95rem;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-}
-
 .btn:active {
     transform: scale(0.97);
     background: rgba(176, 123, 172, 0.65);
     color: white;
+}
+
+/* error message */
+.error-message {
+    color: var(--amethyst-smoke);
+    font-size: 0.7rem;
+    text-align: center;
+    margin-top: 0.5rem;
+    padding: 0.3rem;
+    background: rgba(176, 123, 172, 0.1);
+    border-radius: 20px;
+    display: none;
+}
+
+.error-message.visible {
+    display: block;
+}
+
+/* empty state */
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--deep-teal);
+    opacity: 0.5;
+    font-size: 0.9rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 28px;
+    margin-bottom: 0.5rem;
+    border: 1px dashed rgba(176, 123, 172, 0.3);
+}
+
+.empty-state.hidden {
+    display: none;
 }
 
 /* scrollbar - mobile friendly */
@@ -528,7 +606,6 @@ body {
 
 /* ===== NOTION MOBILE FIXES ===== */
 @media (max-width: 768px) {
-    /* Force container to not exceed viewport */
     .timer-container {
         max-width: 100vw;
         width: 100%;
@@ -538,7 +615,6 @@ body {
         box-sizing: border-box;
     }
     
-    /* Ensure timer doesn't overflow */
     .time {
         font-size: 3.8rem;
         width: auto;
@@ -548,7 +624,6 @@ body {
         text-overflow: clip;
     }
     
-    /* Make tabs stack properly */
     .tabs {
         flex-wrap: wrap;
         gap: 0.2rem;
@@ -562,13 +637,11 @@ body {
         white-space: nowrap;
     }
     
-    /* Preset grid adjustments */
     .presets-grid {
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
         max-height: 200px;
     }
     
-    /* Input group adjustments */
     .input-group {
         min-width: 60px;
     }
@@ -579,7 +652,6 @@ body {
         padding: 0.5rem 0.2rem;
     }
     
-    /* Button adjustments */
     .controls {
         gap: 0.3rem;
     }
@@ -590,27 +662,24 @@ body {
         font-size: 0.85rem;
     }
     
-    /* Month counter */
     .month-counter {
         font-size: 0.8rem;
         margin: 0 0 0.2rem 0;
     }
     
-    /* Status badge */
     .status-badge {
         font-size: 0.8rem;
         padding: 0.4rem;
         margin: 0.4rem 0 0.6rem;
     }
     
-    /* Stopwatch panel */
     .stopwatch-panel {
         min-height: 40px;
         margin: 0.2rem 0 0.4rem;
     }
 }
 
-/* Very small phones - additional fixes */
+/* Very small phones */
 @media (max-width: 380px) {
     .time {
         font-size: 3.2rem;
@@ -638,27 +707,6 @@ body {
         font-size: 0.75rem;
         padding: 0.6rem 0.2rem;
     }
-}
-
-/* ===== CUSTOM TAB STATUS STYLES ===== */
-.status-badge.blinking {
-    animation: darkBlink 1s infinite;
-}
-
-@keyframes darkBlink {
-    0%, 100% { 
-        background: rgba(176, 123, 172, 0.12);
-        color: #5F7367;
-    }
-    50% { 
-        background: rgba(95, 115, 103, 0.3);
-        color: #2c3530;
-    }
-}
-
-/* Warning color for timer when less than 6 seconds */
-.time.warning {
-    color: #B07BAC !important;
 }
 
 /* ===== SAFE AREA SUPPORT FOR NOTCHED PHONES ===== */
