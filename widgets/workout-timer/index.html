@@ -27,7 +27,9 @@
         <div class="status-badge" id="statusMessage">⏳ Standby</div>
         
         <!-- workout structure info -->
-        <div class="structure-info" id="structureInfo"></div>
+        <div class="structure-info" id="structureInfo">
+            <span class="progress-item">Ready</span>
+        </div>
 
         <!-- presets tab content -->
         <div id="presetsTab" class="tab-content">
@@ -53,95 +55,124 @@
                     <button class="custom-tab-btn" data-custom-type="simple">⏱️ Simple</button>
                 </div>
 
-                <!-- rounds based -->
+                <!-- rounds based (EMOM, Tabata-style HIIT) -->
                 <div id="customRoundsPanel" class="custom-type-panel">
                     <div class="input-row">
                         <div class="input-group">
-                            <label>round/s</label>
-                            <input type="number" id="customRounds" value="4" min="1" max="20">
+                            <label>Round/s</label>
+                            <input type="number" class="required" id="roundRounds" placeholder="0" min="1">
                         </div>
                         <div class="input-group">
-                            <label>exercises</label>
-                            <input type="number" id="customExPerRound" value="4" min="1" max="20">
+                            <label>Set/s per round</label>
+                            <input type="number" class="required" id="roundSets" placeholder="0" min="1">
                         </div>
                         <div class="input-group">
-                            <label>sets</label>
-                            <input type="number" id="customSetsPerEx" value="2" min="1" max="10">
-                        </div>
-                    </div>
-                    <div class="input-row">
-                        <div class="input-group">
-                            <label>work (secs)</label>
-                            <input type="number" id="customWorkRounds" value="20" min="1" max="300">
-                        </div>
-                        <div class="input-group">
-                            <label>rest (secs)</label>
-                            <input type="number" id="customRestRounds" value="10" min="0" max="300">
-                        </div>
-                        <div class="input-group">
-                            <label>break (secs)</label>
-                            <input type="number" id="customRoundBreak" value="30" min="0" max="600">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- sets based -->
-                <div id="customSetsPanel" class="custom-type-panel" style="display: none;">
-                    <div class="input-row">
-                        <div class="input-group">
-                            <label>sets</label>
-                            <input type="number" id="customSets" value="3" min="1" max="20">
-                        </div>
-                        <div class="input-group">
-                            <label>exercises</label>
-                            <input type="number" id="customExPerSet" value="8" min="1" max="20">
+                            <label>Exercise/s per set</label>
+                            <input type="number" class="required" id="roundExercises" placeholder="0" min="1">
                         </div>
                     </div>
                     <div class="input-row">
                         <div class="input-group">
-                            <label>work (secs)</label>
-                            <input type="number" id="customWorkSets" value="40" min="1" max="300">
-                        </div>
-                        <div class="input-group">
-                            <label>rest (secs)</label>
-                            <input type="number" id="customRestSets" value="20" min="0" max="300">
-                        </div>
-                        <div class="input-group">
-                            <label>break (secs)</label>
-                            <input type="number" id="customSetBreak" value="60" min="0" max="600">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- simple -->
-                <div id="customSimplePanel" class="custom-type-panel" style="display: none;">
-                    <div class="input-row">
-                        <div class="input-group">
-                            <label>work (min/sec)</label>
-                            <div class="time-input-group">
-                                <input type="text" id="customWorkMin" placeholder="00" value="20" maxlength="2" inputmode="numeric">
-                                <span class="time-separator">:</span>
-                                <input type="text" id="customWorkSec" placeholder="00" value="00" maxlength="2" inputmode="numeric">
+                            <label>Work (min:sec)</label>
+                            <div style="display: flex; gap: 0.2rem;">
+                                <input type="text" class="required" id="roundWorkMin" placeholder="00" style="max-width: 45px;"> :
+                                <input type="text" class="required" id="roundWorkSec" placeholder="00" style="max-width: 45px;">
                             </div>
                         </div>
                         <div class="input-group">
-                            <label>rest (secs)</label>
-                            <input type="number" id="customRestSimple" value="0" min="0" max="300">
+                            <label>Rest (min:sec)</label>
+                            <div style="display: flex; gap: 0.2rem;">
+                                <input type="text" class="required" id="roundRestMin" placeholder="00" style="max-width: 45px;"> :
+                                <input type="text" class="required" id="roundRestSec" placeholder="00" style="max-width: 45px;">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Break (min:sec)</label>
+                            <div style="display: flex; gap: 0.2rem;">
+                                <input type="text" class="required" id="roundBreakMin" placeholder="00" style="max-width: 45px;"> :
+                                <input type="text" class="required" id="roundBreakSec" placeholder="00" style="max-width: 45px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- sets based (HIIT, Circuit style) -->
+                <div id="customSetsPanel" class="custom-type-panel" style="display: none;">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>Set/s</label>
+                            <input type="number" class="required" id="setGroups" placeholder="0" min="1">
+                        </div>
+                        <div class="input-group">
+                            <label>Exercise/s per set</label>
+                            <input type="number" class="required" id="setExercises" placeholder="0" min="1">
                         </div>
                     </div>
                     <div class="input-row">
                         <div class="input-group">
-                            <label>rounds</label>
-                            <input type="number" id="customSimpleRounds" value="1" min="1" max="50">
+                            <label>Work (min:sec)</label>
+                            <div style="display: flex; gap: 0.2rem;">
+                                <input type="text" class="required" id="setWorkMin" placeholder="00" style="max-width: 45px;"> :
+                                <input type="text" class="required" id="setWorkSec" placeholder="00" style="max-width: 45px;">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Rest (min:sec)</label>
+                            <div style="display: flex; gap: 0.2rem;">
+                                <input type="text" class="required" id="setRestMin" placeholder="00" style="max-width: 45px;"> :
+                                <input type="text" class="required" id="setRestSec" placeholder="00" style="max-width: 45px;">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Break (min:sec)</label>
+                            <div style="display: flex; gap: 0.2rem;">
+                                <input type="text" class="required" id="setBreakMin" placeholder="00" style="max-width: 45px;"> :
+                                <input type="text" class="required" id="setBreakSec" placeholder="00" style="max-width: 45px;">
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- simple (AMRAP, Warmup style) -->
+                <div id="customSimplePanel" class="custom-type-panel" style="display: none;">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>Round/s</label>
+                            <input type="number" class="required" id="simpleRounds" placeholder="0" min="1">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>Work (min:sec)</label>
+                            <div style="display: flex; gap: 0.2rem;">
+                                <input type="text" class="required" id="simpleWorkMin" placeholder="00" style="max-width: 45px;"> :
+                                <input type="text" class="required" id="simpleWorkSec" placeholder="00" style="max-width: 45px;">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Rest (min:sec)</label>
+                            <div style="display: flex; gap: 0.2rem;">
+                                <input type="text" class="required" id="simpleRestMin" placeholder="00" style="max-width: 45px;"> :
+                                <input type="text" class="required" id="simpleRestSec" placeholder="00" style="max-width: 45px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Empty State (shown when no dropdown selected) -->
+                <div class="empty-state" id="emptyState">
+                    ⬆️ Select a timer type to begin
+                </div>
+                
+                <!-- Error Message -->
+                <div class="error-message" id="errorMessage">⚠️ Please fill all required fields</div>
             </div>
         </div>
 
         <!-- stopwatch tab content -->
         <div id="stopwatchTab" class="tab-content" style="display: none;">
             <div class="stopwatch-panel">
+                <!-- Lap time will go here (blank for now) -->
                 <div class="lap-time" id="lapDisplay"></div>
             </div>
         </div>
