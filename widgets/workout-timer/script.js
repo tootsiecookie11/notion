@@ -217,7 +217,12 @@
 
     function updateStructureInfo() {
         if (currentMode === 'stopwatch') {
-            structureInfo.innerHTML = '<span class="progress-item">Stopwatch</span>';
+            const monthCounter = document.getElementById('monthCounter');
+            if (stopwatchMonthCounter > 0) {
+                structureInfo.innerHTML = `<span class="progress-item">${stopwatchMonthCounter} month${stopwatchMonthCounter > 1 ? 's' : ''} +</span>`;
+            } else {
+                structureInfo.innerHTML = '<span class="progress-item">Stopwatch</span>';
+            }
             return;
         }
         
@@ -257,15 +262,29 @@
     function setStatus(status) {
         stopBlinking();
         
-        if (status === 'standby') {
-            statusBadge.textContent = '⚪ Standby';
-        } else if (status === 'paused') {
-            statusBadge.textContent = '⏸ Paused';
-        } else if (status === 'reset') {
-            statusBadge.textContent = '↺ Reset — Ready';
-        } else if (status === 'running') {
-            updatePhaseStatus();
-            startBlinking();
+        if (currentMode === 'stopwatch') {
+            // Stopwatch status messages
+            if (status === 'standby') {
+                statusBadge.textContent = '⚪ Standby';
+            } else if (status === 'running') {
+                statusBadge.textContent = '⏱️ Running...';
+            } else if (status === 'paused') {
+                statusBadge.textContent = '⏸ Paused';
+            } else if (status === 'reset') {
+                statusBadge.textContent = '↺ Reset — Ready';
+            }
+        } else {
+            // Workout timer status messages
+            if (status === 'standby') {
+                statusBadge.textContent = '⚪ Standby';
+            } else if (status === 'paused') {
+                statusBadge.textContent = '⏸ Paused';
+            } else if (status === 'reset') {
+                statusBadge.textContent = '↺ Reset — Ready';
+            } else if (status === 'running') {
+                updatePhaseStatus();
+                startBlinking();
+            }
         }
     }
 
