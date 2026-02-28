@@ -640,6 +640,27 @@ body {
     }
 }
 
+/* ===== CUSTOM TAB STATUS STYLES ===== */
+.status-badge.blinking {
+    animation: darkBlink 1s infinite;
+}
+
+@keyframes darkBlink {
+    0%, 100% { 
+        background: rgba(176, 123, 172, 0.12);
+        color: #5F7367;
+    }
+    50% { 
+        background: rgba(95, 115, 103, 0.3);
+        color: #2c3530;
+    }
+}
+
+/* Warning color for timer when less than 6 seconds */
+.time.warning {
+    color: #B07BAC !important;
+}
+
 /* ===== SAFE AREA SUPPORT FOR NOTCHED PHONES ===== */
 @supports (padding: max(0px)) {
     .timer-container {
