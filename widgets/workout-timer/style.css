@@ -380,6 +380,11 @@ body {
 }
 
 .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    
     background: rgba(230, 253, 255, 0.75);
     border: none;
     padding: 0.9rem 0.5rem;
@@ -394,6 +399,13 @@ body {
     flex: 1 1 auto;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+}
+
+.btn-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    display: block;
 }
 
 .btn:active {
