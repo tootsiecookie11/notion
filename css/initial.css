@@ -1,0 +1,649 @@
+:root {
+    --frozen-water: #DBF9F4;
+    --azure-mist: #E6FDFF;
+    --alabaster-grey: #D9D7DD;
+    --amethyst-smoke: #B07BAC;
+    --deep-teal: #5F7367;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    background:
+        radial-gradient(circle at top left, var(--azure-mist), transparent 60%),
+        radial-gradient(circle at bottom right, var(--frozen-water), transparent 60%),
+        linear-gradient(135deg, #eefcf8, #dff6f2);
+    
+    padding: 0.5rem;
+}
+
+/* ===== MOBILE-FIRST BASE STYLES ===== */
+.timer-container {
+    max-width: 750px;
+    width: 100%;
+    
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    
+    border-radius: 32px;
+    padding: 1.2rem;
+    
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    
+    box-shadow:
+        0 20px 40px rgba(95, 115, 103, 0.15),
+        0 6px 14px rgba(95, 115, 103, 0.08),
+        inset 0 1px 1px rgba(255, 255, 255, 0.6);
+}
+
+/* tabs navigation - mobile optimized */
+.tabs {
+    display: flex;
+    gap: 0.3rem;
+    margin-bottom: 1.2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    
+    background: rgba(176, 123, 172, 0.18);
+    padding: 0.4rem;
+    border-radius: 40px;
+    backdrop-filter: blur(4px);
+}
+
+.tab-btn {
+    border: none;
+    background: transparent;
+    padding: 0.7rem 0.8rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--deep-teal);
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1 1 auto;
+    min-width: 70px;
+    touch-action: manipulation;
+}
+
+.tab-btn:hover {
+    background: rgba(176, 123, 172, 0.25);
+}
+
+.tab-btn.active {
+    background: rgba(176, 123, 172, 0.65);
+    color: white;
+}
+
+/* Month counter for stopwatch - now above timer */
+.month-counter {
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--amethyst-smoke);
+    margin: 0 0 0.3rem 0;
+    font-weight: 400;
+    opacity: 0.8;
+    display: none;
+    min-height: 24px;
+}
+
+.month-counter.visible {
+    display: block;
+}
+
+/* timer display */
+.timer-display {
+    text-align: center;
+    margin: 0 0 0.5rem;
+}
+
+.time {
+    font-size: 4.5rem;
+    font-weight: 300;
+    letter-spacing: -1px;
+    color: var(--deep-teal);
+    line-height: 1;
+    text-shadow: 2px 2px 10px rgba(176, 123, 172, 0.15);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+    display: inline-block;
+}
+
+.round-info {
+    font-size: 0.9rem;
+    color: var(--deep-teal);
+    margin-top: 0.3rem;
+    font-weight: 500;
+    
+    background: rgba(176, 123, 172, 0.18);
+    display: inline-block;
+    padding: 0.3rem 1rem;
+    border-radius: 30px;
+}
+
+/* Status badge - under timer */
+.status-badge {
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--deep-teal);
+    background: rgba(176, 123, 172, 0.12);
+    padding: 0.5rem;
+    border-radius: 30px;
+    margin: 0.5rem 0 0.8rem;
+    width: 100%;
+}
+
+/* Status badge variations */
+.status-badge.standby {
+    background: rgba(176, 123, 172, 0.12);
+    color: var(--deep-teal);
+}
+
+.status-badge.running {
+    background: rgba(95, 115, 103, 0.15);
+    color: var(--deep-teal);
+}
+
+.status-badge.paused {
+    background: rgba(176, 123, 172, 0.25);
+    color: var(--deep-teal);
+}
+
+.status-badge.reset {
+    background: rgba(176, 123, 172, 0.12);
+    color: var(--deep-teal);
+}
+
+/* structure info */
+.structure-info {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--deep-teal);
+    margin: 0.3rem 0 0.8rem;
+    
+    background: rgba(176, 123, 172, 0.12);
+    padding: 0.4rem;
+    border-radius: 20px;
+}
+
+/* preset category pills - touch optimized */
+.preset-categories {
+    display: flex;
+    gap: 0.3rem;
+    margin: 0.8rem 0;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.category-pill {
+    background: transparent;
+    border: 1px solid rgba(176, 123, 172, 0.3);
+    color: var(--deep-teal);
+    padding: 0.5rem 0.8rem;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    touch-action: manipulation;
+}
+
+.category-pill.active {
+    background: rgba(176, 123, 172, 0.65);
+    border-color: var(--amethyst-smoke);
+    color: white;
+}
+
+/* presets grid - mobile optimized */
+.presets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.6rem;
+    margin: 0.8rem 0 1.2rem;
+    max-height: 220px;
+    overflow-y: auto;
+    padding-right: 0.3rem;
+    -webkit-overflow-scrolling: touch;
+}
+
+.preset-card {
+    background: rgba(255, 255, 255, 0.35);
+    padding: 0.8rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    cursor: pointer;
+    transition: all 0.2s;
+    backdrop-filter: blur(4px);
+    touch-action: manipulation;
+}
+
+.preset-card:active {
+    transform: scale(0.98);
+    background: rgba(176, 123, 172, 0.18);
+}
+
+.preset-name {
+    font-weight: 600;
+    color: var(--deep-teal);
+    margin-bottom: 0.2rem;
+    font-size: 0.9rem;
+}
+
+.preset-desc {
+    font-size: 0.65rem;
+    color: var(--deep-teal);
+    opacity: 0.8;
+    line-height: 1.2;
+}
+
+/* custom timer panel - mobile optimized */
+.custom-panel {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 28px;
+    padding: 1rem;
+    margin: 0.8rem 0 1.2rem;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(4px);
+}
+
+.custom-tabs {
+    display: flex;
+    gap: 0.3rem;
+    margin-bottom: 1.2rem;
+    justify-content: center;
+    
+    background: rgba(176, 123, 172, 0.18);
+    padding: 0.3rem;
+    border-radius: 40px;
+}
+
+.custom-tab-btn {
+    border: none;
+    background: transparent;
+    padding: 0.6rem 0.3rem;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    color: var(--deep-teal);
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+    touch-action: manipulation;
+}
+
+.custom-tab-btn.active {
+    background: rgba(176, 123, 172, 0.65);
+    color: white;
+}
+
+/* input groups - mobile optimized */
+.input-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 0.8rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    min-width: 70px;
+    flex: 1 1 auto;
+}
+
+.input-group label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    color: var(--deep-teal);
+    font-weight: 600;
+    opacity: 0.8;
+}
+
+.input-group input {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(176, 123, 172, 0.3);
+    border-radius: 25px;
+    padding: 0.6rem 0.3rem;
+    width: 100%;
+    max-width: 80px;
+    text-align: center;
+    font-size: 1rem;
+    color: var(--deep-teal);
+    -webkit-appearance: none;
+    appearance: none;
+    touch-action: manipulation;
+}
+
+/* custom time input group */
+.time-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    width: 100%;
+    justify-content: center;
+}
+
+.time-input-group input {
+    max-width: 50px;
+}
+
+.time-separator {
+    color: var(--deep-teal);
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+/* stopwatch panel */
+.stopwatch-panel {
+    min-height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0.3rem 0 0.5rem;
+}
+
+.lap-time {
+    font-size: 1rem;
+    color: var(--deep-teal);
+    opacity: 0.7;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+}
+
+/* exercise info - hidden by default */
+.exercise-info {
+    display: none;
+}
+
+/* controls - touch optimized */
+.controls {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    margin: 1rem 0 0.3rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    
+    background: rgba(230, 253, 255, 0.75);
+    border: none;
+    padding: 0.9rem 0.5rem;
+    border-radius: 40px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--deep-teal);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    min-width: 90px;
+    flex: 1 1 auto;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.btn-icon {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    stroke-width: 14;
+    flex-shrink: 0;
+    overflow: visible;
+}
+
+.btn-label {
+    font-size: 0.95rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+}
+
+.btn:active {
+    transform: scale(0.97);
+    background: rgba(176, 123, 172, 0.65);
+    color: white;
+}
+
+/* scrollbar - mobile friendly */
+.presets-grid::-webkit-scrollbar {
+    width: 4px;
+}
+
+.presets-grid::-webkit-scrollbar-track {
+    background: rgba(176, 123, 172, 0.1);
+    border-radius: 10px;
+}
+
+.presets-grid::-webkit-scrollbar-thumb {
+    background: rgba(176, 123, 172, 0.5);
+    border-radius: 10px;
+}
+
+/* ===== TABLET AND DESKTOP UPGRADES ===== */
+@media (min-width: 768px) {
+    body {
+        padding: 1rem;
+    }
+    
+    .timer-container {
+        border-radius: 42px;
+        padding: 2rem 1.8rem;
+    }
+    
+    .month-counter {
+        font-size: 1rem;
+        margin: 0 0 0.5rem 0;
+        min-height: 28px;
+    }
+    
+    .time {
+        font-size: 5.5rem;
+    }
+    
+    .status-badge {
+        margin: 0.8rem 0 1rem;
+        padding: 0.6rem;
+    }
+    
+    .stopwatch-panel {
+        min-height: 60px;
+        margin: 0.5rem 0 0.8rem;
+    }
+    
+    .tab-btn {
+        padding: 0.6rem 1.4rem;
+        font-size: 0.95rem;
+    }
+    
+    .presets-grid {
+        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+        max-height: 250px;
+    }
+    
+    .btn {
+        padding: 0.8rem 2rem;
+        min-width: 110px;
+    }
+    
+    .btn:hover {
+        background: rgba(176, 123, 172, 0.65);
+        color: white;
+        transform: translateY(-1px);
+    }
+    
+    .preset-card:hover {
+        transform: translateY(-2px);
+    }
+}
+
+/* ===== SMALL MOBILE OPTIMIZATIONS ===== */
+@media (max-width: 380px) {
+    .timer-container {
+        padding: 0.8rem;
+    }
+    
+    .time {
+        font-size: 3.8rem;
+    }
+    
+    .tab-btn {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .input-group {
+        min-width: 60px;
+    }
+    
+    .input-group input {
+        max-width: 65px;
+        font-size: 0.9rem;
+    }
+    
+    .btn {
+        min-width: 75px;
+        padding: 0.8rem 0.3rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* ===== NOTION MOBILE FIXES ===== */
+@media (max-width: 768px) {
+    /* Force container to not exceed viewport */
+    .timer-container {
+        max-width: 100vw;
+        width: 100%;
+        margin: 0;
+        border-radius: 24px;
+        padding: 1rem;
+        box-sizing: border-box;
+    }
+    
+    /* Ensure timer doesn't overflow */
+    .time {
+        font-size: 3.8rem;
+        width: auto;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: clip;
+    }
+    
+    /* Make tabs stack properly */
+    .tabs {
+        flex-wrap: wrap;
+        gap: 0.2rem;
+    }
+    
+    .tab-btn {
+        flex: 1 1 auto;
+        min-width: 30%;
+        padding: 0.6rem 0.3rem;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+    
+    /* Preset grid adjustments */
+    .presets-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        max-height: 200px;
+    }
+    
+    /* Input group adjustments */
+    .input-group {
+        min-width: 60px;
+    }
+    
+    .input-group input {
+        max-width: 70px;
+        font-size: 0.9rem;
+        padding: 0.5rem 0.2rem;
+    }
+    
+    /* Button adjustments */
+    .controls {
+        gap: 0.3rem;
+    }
+    
+    .btn {
+        min-width: 70px;
+        padding: 0.7rem 0.3rem;
+        font-size: 0.85rem;
+    }
+    
+    /* Month counter */
+    .month-counter {
+        font-size: 0.8rem;
+        margin: 0 0 0.2rem 0;
+    }
+    
+    /* Status badge */
+    .status-badge {
+        font-size: 0.8rem;
+        padding: 0.4rem;
+        margin: 0.4rem 0 0.6rem;
+    }
+    
+    /* Stopwatch panel */
+    .stopwatch-panel {
+        min-height: 40px;
+        margin: 0.2rem 0 0.4rem;
+    }
+}
+
+/* Very small phones - additional fixes */
+@media (max-width: 380px) {
+    .time {
+        font-size: 3.2rem;
+    }
+    
+    .tab-btn {
+        font-size: 0.7rem;
+        padding: 0.5rem 0.2rem;
+    }
+    
+    .presets-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+    
+    .preset-name {
+        font-size: 0.8rem;
+    }
+    
+    .preset-desc {
+        font-size: 0.6rem;
+    }
+    
+    .btn {
+        min-width: 60px;
+        font-size: 0.75rem;
+        padding: 0.6rem 0.2rem;
+    }
+}
+
+/* ===== SAFE AREA SUPPORT FOR NOTCHED PHONES ===== */
+@supports (padding: max(0px)) {
+    .timer-container {
+        padding-left: max(1.2rem, env(safe-area-inset-left));
+        padding-right: max(1.2rem, env(safe-area-inset-right));
+    }
+}

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Fitness Workout Timer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="timer-container">
+        <!-- tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="presets">📋 Preset Timer</button>
+            <button class="tab-btn" data-tab="custom">✨ Custom</button>
+            <button class="tab-btn" data-tab="stopwatch">⏱️ Stopwatch</button>
+        </div>
+
+        <!-- month counter for stopwatch (hidden by default) -->
+        <div class="month-counter" id="monthCounter"></div>
+        
+        <!-- timer display -->
+        <div class="timer-display">
+            <div class="time" id="timerDisplay">00:00.00</div>
+        </div>
+
+        <!-- status badge -->
+        <div class="status-badge" id="statusMessage">⏳ Standby</div>
+        
+        <!-- workout structure info - will be hidden for stopwatch -->
+        <div class="structure-info" id="structureInfo"></div>
+
+        <!-- presets tab content -->
+        <div id="presetsTab" class="tab-content">
+            <div class="preset-categories">
+                <span class="category-pill active" data-category="all">All</span>
+                <span class="category-pill" data-category="hiit">🔥 HIIT</span>
+                <span class="category-pill" data-category="strength">💪 Strength</span>
+                <span class="category-pill" data-category="cardio">🏃 Cardio</span>
+                <span class="category-pill" data-category="flex">🧘 Flex</span>
+            </div>
+
+            <div class="presets-grid" id="presetsGrid">
+                <!-- populated by js -->
+            </div>
+        </div>
+
+        <!-- custom tab content -->
+        <div id="customTab" class="tab-content" style="display: none;">
+            <div class="custom-panel">
+                <div class="custom-tabs">
+                    <button class="custom-tab-btn active" data-custom-type="rounds">🔄 Rounds</button>
+                    <button class="custom-tab-btn" data-custom-type="sets">🎯 Sets</button>
+                    <button class="custom-tab-btn" data-custom-type="simple">⏱️ Simple</button>
+                </div>
+
+                <!-- rounds based (EMOM, Tabata-style HIIT) -->
+                <div id="customRoundsPanel" class="custom-type-panel">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>round/s</label>
+                            <input type="number" id="customRounds" value="4" min="1" max="20">
+                        </div>
+                        <div class="input-group">
+                            <label>exercises</label>
+                            <input type="number" id="customExPerRound" value="4" min="1" max="20">
+                        </div>
+                        <div class="input-group">
+                            <label>sets</label>
+                            <input type="number" id="customSetsPerEx" value="2" min="1" max="10">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>work (secs)</label>
+                            <input type="number" id="customWorkRounds" value="20" min="1" max="300">
+                        </div>
+                        <div class="input-group">
+                            <label>rest (secs)</label>
+                            <input type="number" id="customRestRounds" value="10" min="0" max="300">
+                        </div>
+                        <div class="input-group">
+                            <label>break (secs)</label>
+                            <input type="number" id="customRoundBreak" value="30" min="0" max="600">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- sets based (HIIT, Circuit style) -->
+                <div id="customSetsPanel" class="custom-type-panel" style="display: none;">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>sets</label>
+                            <input type="number" id="customSets" value="3" min="1" max="20">
+                        </div>
+                        <div class="input-group">
+                            <label>exercises</label>
+                            <input type="number" id="customExPerSet" value="8" min="1" max="20">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>work (secs)</label>
+                            <input type="number" id="customWorkSets" value="40" min="1" max="300">
+                        </div>
+                        <div class="input-group">
+                            <label>rest (secs)</label>
+                            <input type="number" id="customRestSets" value="20" min="0" max="300">
+                        </div>
+                        <div class="input-group">
+                            <label>break (secs)</label>
+                            <input type="number" id="customSetBreak" value="60" min="0" max="600">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- simple (AMRAP, Warmup style) -->
+                <div id="customSimplePanel" class="custom-type-panel" style="display: none;">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>work (min/sec)</label>
+                            <div class="time-input-group">
+                                <input type="text" id="customWorkMin" placeholder="00" value="20" maxlength="2" inputmode="numeric">
+                                <span class="time-separator">:</span>
+                                <input type="text" id="customWorkSec" placeholder="00" value="00" maxlength="2" inputmode="numeric">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>rest (secs)</label>
+                            <input type="number" id="customRestSimple" value="0" min="0" max="300">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>rounds</label>
+                            <input type="number" id="customSimpleRounds" value="1" min="1" max="50">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- stopwatch tab content -->
+        <div id="stopwatchTab" class="tab-content" style="display: none;">
+            <div class="stopwatch-panel">
+                <!-- Lap time will go here (blank for now) -->
+                <div class="lap-time" id="lapDisplay"></div>
+            </div>
+        </div>
+
+        <!-- control buttons -->
+        <div class="controls">
+            <button class="btn" id="startBtn">
+                <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                    <path d="M72,39.88V216.12a8,8,0,0,0,12.15,6.69l144.08-88.12a7.82,7.82,0,0,0,0-13.38L84.15,33.19A8,8,0,0,0,72,39.88Z"
+                        fill="none" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="16"/>
+                </svg>
+                <span>Start</span>
+            </button>
+            <button class="btn" id="pauseBtn">
+                <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                    <rect x="152" y="40" width="56" height="176" rx="8"
+                        fill="none" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="16"/>
+                    <rect x="48" y="40" width="56" height="176" rx="8"
+                        fill="none" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="16"/>
+                </svg>
+                <span>Pause</span>
+            </button>
+            <button class="btn" id="resetBtn">
+                <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                    <polyline points="24 56 24 104 72 104"
+                        fill="none" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="16"/>
+                    <path d="M67.59,192A88,88,0,1,0,65.77,65.77L24,104"
+                        fill="none" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="16"/>
+                </svg>
+                <span>Reset</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

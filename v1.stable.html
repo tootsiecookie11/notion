@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Fitness Workout Timer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- ===== GLOBAL HEADER ===== -->
+        <div class="global-header">
+            <!-- Tabs Navigation -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="presets">📋 Preset Timer</button>
+                <button class="tab-btn" data-tab="custom">✨ Custom</button>
+                <button class="tab-btn" data-tab="stopwatch">⏱️ Stopwatch</button>
+            </div>
+
+            <!-- Month Counter for Stopwatch (hidden by default) -->
+            <div class="month-counter" id="monthCounter"></div>
+        
+            <!-- Timer Display -->
+            <div class="timer-display">
+                <div class="time" id="timerDisplay">00:00.00</div>
+            </div>
+
+            <!-- Status Badge -->
+            <div class="status-badge" id="statusMessage">⏳ Standby</div>
+        
+            <!-- Progress Display / Structure Info -->
+            <div class="structure-info" id="structureInfo">
+                <span class="progress-item">Ready</span>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="controls">
+                <button class="btn" id="startBtn">▶ Start</button>
+                <button class="btn" id="pauseBtn">⏸ Pause</button>
+                <button class="btn" id="resetBtn">↺ Reset</button>
+            </div>
+        </div>
+
+        <!-- ===== PRESET TAB CONTAINER ===== -->
+        <div class="tab-container presets-tab" id="presetsTab">
+            <div class="preset-categories">
+                <span class="category-pill active" data-category="all">All</span>
+                <span class="category-pill" data-category="hiit">🔥 HIIT</span>
+                <span class="category-pill" data-category="strength">💪 Strength</span>
+                <span class="category-pill" data-category="cardio">🏃 Cardio</span>
+                <span class="category-pill" data-category="flex">🧘 Flex</span>
+            </div>
+
+            <div class="presets-grid" id="presetsGrid">
+                <!-- populated by js -->
+            </div>
+        </div>
+
+        <!-- ===== CUSTOM TAB CONTAINER ===== -->
+        <div class="tab-container custom-tab" id="customTab" style="display: none;">
+            <!-- Custom Dropdown -->
+            <div class="custom-dropdown" id="customDropdown">
+                <div class="dropdown-selected" id="dropdownSelected">
+                    <span class="dropdown-placeholder" id="dropdownPlaceholder">— Select timer type —</span>
+                    <span class="dropdown-arrow">▼</span>
+                </div>
+                <div class="dropdown-options" id="dropdownOptions">
+                    <div class="dropdown-option" data-value="rounds">🔄 Round-based</div>
+                    <div class="dropdown-option" data-value="sets">🎯 Set-based</div>
+                    <div class="dropdown-option" data-value="simple">⏱️ Simple timer</div>
+                </div>
+            </div>
+            
+            <!-- Hidden Select -->
+            <select id="timerTypeSelect" style="display: none;">
+                <option value="" disabled selected>— Select timer type —</option>
+                <option value="rounds">🔄 Round-based</option>
+                <option value="sets">🎯 Set-based</option>
+                <option value="simple">⏱️ Simple timer</option>
+            </select>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState">Select a timer type to begin</div>
+            
+            <!-- Error Message -->
+            <div class="error-message" id="errorMessage">⚠️ Fill all the required fields ⚠️</div>
+            
+            <!-- Round-based Fields -->
+            <div class="fields-panel" id="roundFields" style="display: none;">
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Round/s</label>
+                        <input type="number" class="required" id="roundRounds" placeholder="0" min="1">
+                    </div>
+                    <div class="input-group">
+                        <label>Set/s per Round</label>
+                        <input type="number" class="required" id="roundSets" placeholder="0" min="1">
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Exercise/s per Set</label>
+                        <input type="number" class="required" id="roundExercises" placeholder="0" min="1">
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Work (min:sec)</label>
+                        <div class="time-input-group">
+                            <input type="text" class="required time-input" id="roundWorkMin" placeholder="00" maxlength="2">
+                            <span class="time-separator">:</span>
+                            <input type="text" class="required time-input" id="roundWorkSec" placeholder="00" maxlength="2">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Rest (min:sec)</label>
+                        <div class="time-input-group">
+                            <input type="text" class="required time-input" id="roundRestMin" placeholder="00" maxlength="2">
+                            <span class="time-separator">:</span>
+                            <input type="text" class="required time-input" id="roundRestSec" placeholder="00" maxlength="2">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Break (min:sec)</label>
+                        <div class="time-input-group">
+                            <input type="text" class="required time-input" id="roundBreakMin" placeholder="00" maxlength="2">
+                            <span class="time-separator">:</span>
+                            <input type="text" class="required time-input" id="roundBreakSec" placeholder="00" maxlength="2">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Set-based Fields -->
+            <div class="fields-panel" id="setFields" style="display: none;">
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Set/s</label>
+                        <input type="number" class="required" id="setGroups" placeholder="0" min="1">
+                    </div>
+                    <div class="input-group">
+                        <label>Exercise/s per Set</label>
+                        <input type="number" class="required" id="setExercises" placeholder="0" min="1">
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Work (min:sec)</label>
+                        <div class="time-input-group">
+                            <input type="text" class="required time-input" id="setWorkMin" placeholder="00" maxlength="2">
+                            <span class="time-separator">:</span>
+                            <input type="text" class="required time-input" id="setWorkSec" placeholder="00" maxlength="2">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Rest (min:sec)</label>
+                        <div class="time-input-group">
+                            <input type="text" class="required time-input" id="setRestMin" placeholder="00" maxlength="2">
+                            <span class="time-separator">:</span>
+                            <input type="text" class="required time-input" id="setRestSec" placeholder="00" maxlength="2">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Break (min:sec)</label>
+                        <div class="time-input-group">
+                            <input type="text" class="required time-input" id="setBreakMin" placeholder="00" maxlength="2">
+                            <span class="time-separator">:</span>
+                            <input type="text" class="required time-input" id="setBreakSec" placeholder="00" maxlength="2">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Simple Timer Fields -->
+            <div class="fields-panel" id="simpleFields" style="display: none;">
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Round/s</label>
+                        <input type="number" class="required" id="simpleRounds" placeholder="0" min="1">
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Work (min:sec)</label>
+                        <div class="time-input-group">
+                            <input type="text" class="required time-input" id="simpleWorkMin" placeholder="00" maxlength="2">
+                            <span class="time-separator">:</span>
+                            <input type="text" class="required time-input" id="simpleWorkSec" placeholder="00" maxlength="2">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Rest (min:sec)</label>
+                        <div class="time-input-group">
+                            <input type="text" class="required time-input" id="simpleRestMin" placeholder="00" maxlength="2">
+                            <span class="time-separator">:</span>
+                            <input type="text" class="required time-input" id="simpleRestSec" placeholder="00" maxlength="2">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== STOPWATCH TAB CONTAINER ===== -->
+        <div class="tab-container stopwatch-tab" id="stopwatchTab" style="display: none;">
+            <div class="stopwatch-panel">
+                <div class="lap-time" id="lapDisplay"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
