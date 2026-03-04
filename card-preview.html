@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Timer Preview - Phase Status</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(145deg, #E0D3DE 0%, #d6c9d4 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        
+        .preview-card {
+            max-width: 500px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(18px);
+            border-radius: 32px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            box-shadow: 0 20px 40px rgba(95, 115, 103, 0.15);
+        }
+        
+        .time {
+            text-align: center;
+            font-size: 4rem;
+            font-weight: 300;
+            color: #5F7367;
+            margin: 0 0 0.5rem 0;
+            font-variant-numeric: tabular-nums;
+            transition: color 0.2s ease;
+        }
+        
+        .time.warning {
+            color: #B07BAC;
+        }
+        
+        .status-badge {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #5F7367;
+            background: rgba(176, 123, 172, 0.12);
+            padding: 0.5rem;
+            border-radius: 30px;
+            margin: 0 0 0.5rem 0;
+            min-height: 2.2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        /* Blinking animation with darker background */
+        .status-badge.blinking {
+            animation: darkBlink 1s infinite;
+        }
+        
+        @keyframes darkBlink {
+            0%, 100% { 
+                background: rgba(176, 123, 172, 0.12);
+                color: #5F7367;
+            }
+            50% { 
+                background: rgba(95, 115, 103, 0.3);
+                color: #2c3530;
+            }
+        }
+        
+        .structure-info {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #5F7367;
+            background: rgba(176, 123, 172, 0.08);
+            padding: 0.4rem;
+            border-radius: 25px;
+            margin: 0 0 1rem 0;
+            min-height: 2.2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .progress-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+        
+        .progress-divider {
+            opacity: 0.3;
+            margin: 0 0.2rem;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            margin: 0 0 1.5rem 0;
+        }
+        
+        .btn {
+            flex: 1;
+            background: rgba(230, 253, 255, 0.75);
+            border: none;
+            padding: 0.8rem 0;
+            border-radius: 40px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #5F7367;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            transition: all 0.2s ease;
+        }
+        
+        .btn:active { 
+            transform: scale(0.97);
+            background: rgba(176, 123, 172, 0.65);
+            color: white;
+        }
+        
+        .dropdown-container {
+            margin: 0 0 1rem 0;
+        }
+        
+        .timer-dropdown {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 30px;
+            border: 1px solid rgba(176, 123, 172, 0.3);
+            background: rgba(255, 255, 255, 0.5);
+            color: #5F7367;
+            font-size: 0.95rem;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235F7367' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1rem;
+        }
+        
+        .fields-panel {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 28px;
+            padding: 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            margin-bottom: 0.5rem;
+        }
+        
+        .input-row {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 0.8rem;
+        }
+        
+        .input-group {
+            flex: 1 1 auto;
+            min-width: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+        }
+        
+        .input-group label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            color: #5F7367;
+            font-weight: 600;
+            opacity: 0.8;
+            white-space: nowrap;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 0.6rem 0.3rem;
+            border-radius: 25px;
+            border: 1px solid rgba(176, 123, 172, 0.3);
+            background: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            font-size: 0.9rem;
+            color: #5F7367;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #B07BAC;
+            background: rgba(255, 255, 255, 0.8);
+        }
+        
+        .input-group input.error {
+            border-color: #B07BAC;
+            background: rgba(176, 123, 172, 0.1);
+        }
+        
+        .input-group input::placeholder {
+            color: #5F7367;
+            opacity: 0.3;
+        }
+        
+        .error-message {
+            color: #B07BAC;
+            font-size: 0.7rem;
+            text-align: center;
+            margin-top: 0.5rem;
+            padding: 0.3rem;
+            background: rgba(176, 123, 172, 0.1);
+            border-radius: 20px;
+            display: none;
+        }
+        
+        .error-message.visible {
+            display: block;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #5F7367;
+            opacity: 0.5;
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 28px;
+            margin-bottom: 0.5rem;
+            border: 1px dashed rgba(176, 123, 172, 0.3);
+        }
+        
+        .empty-state.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-card">
+        <!-- Timer Display -->
+        <div class="time" id="timerDisplay">00:00.00</div>
+        
+        <!-- Status Badge - shows phases directly when running -->
+        <div class="status-badge" id="statusBadge">⚪ Standby</div>
+        
+        <!-- Structure Info / Progress -->
+        <div class="structure-info" id="structureInfo">
+            <span class="progress-item">Ready</span>
+        </div>
+        
+        <!-- Control Buttons -->
+        <div class="controls">
+            <button class="btn" id="startBtn">▶ Start</button>
+            <button class="btn" id="pauseBtn">⏸ Pause</button>
+            <button class="btn" id="resetBtn">↺ Reset</button>
+        </div>
+        
+        <!-- Dropdown -->
+        <div class="dropdown-container">
+            <select class="timer-dropdown" id="timerTypeSelect">
+                <option value="" disabled selected>— Select timer type —</option>
+                <option value="rounds">🔄 Round-based</option>
+                <option value="sets">🎯 Set-based</option>
+                <option value="simple">⏱️ Simple timer</option>
+            </select>
+        </div>
+        
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState">
+            ⬆️ Select a timer type to begin
+        </div>
+        
+        <!-- Round-based Fields -->
+        <div class="fields-panel" id="roundFields" style="display: none;">
+            <div class="input-row">
+                <div class="input-group">
+                    <label>Round/s</label>
+                    <input type="number" class="required" id="roundRounds" placeholder="0" min="1">
+                </div>
+                <div class="input-group">
+                    <label>Set/s per round</label>
+                    <input type="number" class="required" id="roundSets" placeholder="0" min="1">
+                </div>
+                <div class="input-group">
+                    <label>Exercise/s per set</label>
+                    <input type="number" class="required" id="roundExercises" placeholder="0" min="1">
+                </div>
+            </div>
+            <div class="input-row">
+                <div class="input-group">
+                    <label>Work (min:sec)</label>
+                    <div style="display: flex; gap: 0.2rem;">
+                        <input type="text" class="required" id="roundWorkMin" placeholder="00" style="max-width: 45px;"> :
+                        <input type="text" class="required" id="roundWorkSec" placeholder="00" style="max-width: 45px;">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Rest (min:sec)</label>
+                    <div style="display: flex; gap: 0.2rem;">
+                        <input type="text" class="required" id="roundRestMin" placeholder="00" style="max-width: 45px;"> :
+                        <input type="text" class="required" id="roundRestSec" placeholder="00" style="max-width: 45px;">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Break (min:sec)</label>
+                    <div style="display: flex; gap: 0.2rem;">
+                        <input type="text" class="required" id="roundBreakMin" placeholder="00" style="max-width: 45px;"> :
+                        <input type="text" class="required" id="roundBreakSec" placeholder="00" style="max-width: 45px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Set-based Fields -->
+        <div class="fields-panel" id="setFields" style="display: none;">
+            <div class="input-row">
+                <div class="input-group">
+                    <label>Set/s</label>
+                    <input type="number" class="required" id="setGroups" placeholder="0" min="1">
+                </div>
+                <div class="input-group">
+                    <label>Exercise/s per set</label>
+                    <input type="number" class="required" id="setExercises" placeholder="0" min="1">
+                </div>
+            </div>
+            <div class="input-row">
+                <div class="input-group">
+                    <label>Work (min:sec)</label>
+                    <div style="display: flex; gap: 0.2rem;">
+                        <input type="text" class="required" id="setWorkMin" placeholder="00" style="max-width: 45px;"> :
+                        <input type="text" class="required" id="setWorkSec" placeholder="00" style="max-width: 45px;">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Rest (min:sec)</label>
+                    <div style="display: flex; gap: 0.2rem;">
+                        <input type="text" class="required" id="setRestMin" placeholder="00" style="max-width: 45px;"> :
+                        <input type="text" class="required" id="setRestSec" placeholder="00" style="max-width: 45px;">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Break (min:sec)</label>
+                    <div style="display: flex; gap: 0.2rem;">
+                        <input type="text" class="required" id="setBreakMin" placeholder="00" style="max-width: 45px;"> :
+                        <input type="text" class="required" id="setBreakSec" placeholder="00" style="max-width: 45px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Simple Timer Fields -->
+        <div class="fields-panel" id="simpleFields" style="display: none;">
+            <div class="input-row">
+                <div class="input-group">
+                    <label>Round/s</label>
+                    <input type="number" class="required" id="simpleRounds" placeholder="0" min="1">
+                </div>
+            </div>
+            <div class="input-row">
+                <div class="input-group">
+                    <label>Work (min:sec)</label>
+                    <div style="display: flex; gap: 0.2rem;">
+                        <input type="text" class="required" id="simpleWorkMin" placeholder="00" style="max-width: 45px;"> :
+                        <input type="text" class="required" id="simpleWorkSec" placeholder="00" style="max-width: 45px;">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Rest (min:sec)</label>
+                    <div style="display: flex; gap: 0.2rem;">
+                        <input type="text" class="required" id="simpleRestMin" placeholder="00" style="max-width: 45px;"> :
+                        <input type="text" class="required" id="simpleRestSec" placeholder="00" style="max-width: 45px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Error Message -->
+        <div class="error-message" id="errorMessage">⚠️ Please fill all required fields</div>
+    </div>
+    
+    <script>
+        // Timer state
+        let timerValue = 0;
+        let timerRunning = false;
+        let timerInterval = null;
+        let pausedTime = null;
+        
+        // Workout state
+        let workout = {
+            type: '',
+            phase: 'work',
+            currentRound: 1,
+            totalRounds: 1,
+            currentSet: 1,
+            totalSets: 1,
+            currentExercise: 1,
+            totalExercises: 1,
+            workDuration: 0,
+            restDuration: 0,
+            breakDuration: 0
+        };
+        
+        const dropdown = document.getElementById('timerTypeSelect');
+        const emptyState = document.getElementById('emptyState');
+        const roundFields = document.getElementById('roundFields');
+        const setFields = document.getElementById('setFields');
+        const simpleFields = document.getElementById('simpleFields');
+        const errorMsg = document.getElementById('errorMessage');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const statusBadge = document.getElementById('statusBadge');
+        const structureInfo = document.getElementById('structureInfo');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        
+        // Format time
+        function formatTime(seconds) {
+            if (seconds < 0) seconds = 0;
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            const ms = Math.floor((seconds - Math.floor(seconds)) * 100);
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
+        }
+        
+        // Update timer display
+        function updateTimerDisplay() {
+            timerDisplay.textContent = formatTime(timerValue);
+            
+            if (timerValue < 5 && timerValue > 0) {
+                timerDisplay.classList.add('warning');
+            } else {
+                timerDisplay.classList.remove('warning');
+            }
+        }
+        
+        // Update structure info
+        function updateStructureInfo() {
+            let html = '';
+            
+            if (workout.type === 'simple') {
+                html = `Round ${workout.currentRound} / ${workout.totalRounds}`;
+            } else if (workout.type === 'sets') {
+                html = `Set ${workout.currentSet} / ${workout.totalSets} │ Ex ${workout.currentExercise} / ${workout.totalExercises}`;
+            } else if (workout.type === 'rounds') {
+                html = `Round ${workout.currentRound} / ${workout.totalRounds} │ Set ${workout.currentSet} / ${workout.totalSets} │ Ex ${workout.currentExercise} / ${workout.totalExercises}`;
+            } else {
+                html = 'Ready';
+            }
+            
+            structureInfo.innerHTML = `<span class="progress-item">${html}</span>`;
+        }
+        
+        // Update status based on phase
+        function updatePhaseStatus() {
+            if (workout.phase === 'work') {
+                statusBadge.textContent = '▶ WORK';
+            } else if (workout.phase === 'rest') {
+                statusBadge.textContent = '▶ REST';
+            } else if (workout.phase === 'break') {
+                statusBadge.textContent = '▶ BREAK';
+            }
+        }
+        
+        // Start blinking
+        function startBlinking() {
+            statusBadge.classList.add('blinking');
+        }
+        
+        // Stop blinking
+        function stopBlinking() {
+            statusBadge.classList.remove('blinking');
+        }
+        
+        // Set status (for non-running states)
+        function setStatus(status) {
+            stopBlinking();
+            
+            if (status === 'standby') {
+                statusBadge.textContent = '⚪ Standby';
+            } else if (status === 'paused') {
+                statusBadge.textContent = '⏸ Paused';
+            } else if (status === 'reset') {
+                statusBadge.textContent = '↺ Reset — Ready';
+            } else if (status === 'running') {
+                updatePhaseStatus();
+                startBlinking();
+            }
+        }
+        
+        // Clear all fields
+        function clearAllFields() {
+            document.querySelectorAll('input').forEach(input => {
+                input.value = '';
+                input.classList.remove('error');
+            });
+        }
+        
+        // Load workout from fields
+        function loadWorkoutFromFields() {
+            if (dropdown.value === 'rounds') {
+                workout.type = 'rounds';
+                workout.totalRounds = parseInt(document.getElementById('roundRounds').value) || 1;
+                workout.totalSets = parseInt(document.getElementById('roundSets').value) || 1;
+                workout.totalExercises = parseInt(document.getElementById('roundExercises').value) || 1;
+                
+                const workMin = parseInt(document.getElementById('roundWorkMin').value) || 0;
+                const workSec = parseInt(document.getElementById('roundWorkSec').value) || 0;
+                workout.workDuration = (workMin * 60) + workSec;
+                
+                const restMin = parseInt(document.getElementById('roundRestMin').value) || 0;
+                const restSec = parseInt(document.getElementById('roundRestSec').value) || 0;
+                workout.restDuration = (restMin * 60) + restSec;
+                
+                const breakMin = parseInt(document.getElementById('roundBreakMin').value) || 0;
+                const breakSec = parseInt(document.getElementById('roundBreakSec').value) || 0;
+                workout.breakDuration = (breakMin * 60) + breakSec;
+                
+            } else if (dropdown.value === 'sets') {
+                workout.type = 'sets';
+                workout.totalSets = parseInt(document.getElementById('setGroups').value) || 1;
+                workout.totalExercises = parseInt(document.getElementById('setExercises').value) || 1;
+                
+                const workMin = parseInt(document.getElementById('setWorkMin').value) || 0;
+                const workSec = parseInt(document.getElementById('setWorkSec').value) || 0;
+                workout.workDuration = (workMin * 60) + workSec;
+                
+                const restMin = parseInt(document.getElementById('setRestMin').value) || 0;
+                const restSec = parseInt(document.getElementById('setRestSec').value) || 0;
+                workout.restDuration = (restMin * 60) + restSec;
+                
+                const breakMin = parseInt(document.getElementById('setBreakMin').value) || 0;
+                const breakSec = parseInt(document.getElementById('setBreakSec').value) || 0;
+                workout.breakDuration = (breakMin * 60) + breakSec;
+                
+            } else if (dropdown.value === 'simple') {
+                workout.type = 'simple';
+                workout.totalRounds = parseInt(document.getElementById('simpleRounds').value) || 1;
+                
+                const workMin = parseInt(document.getElementById('simpleWorkMin').value) || 0;
+                const workSec = parseInt(document.getElementById('simpleWorkSec').value) || 0;
+                workout.workDuration = (workMin * 60) + workSec;
+                
+                const restMin = parseInt(document.getElementById('simpleRestMin').value) || 0;
+                const restSec = parseInt(document.getElementById('simpleRestSec').value) || 0;
+                workout.restDuration = (restMin * 60) + restSec;
+            }
+            
+            workout.currentRound = 1;
+            workout.currentSet = 1;
+            workout.currentExercise = 1;
+            workout.phase = 'work';
+            timerValue = workout.workDuration;
+            pausedTime = null;
+            
+            updateTimerDisplay();
+            updateStructureInfo();
+        }
+        
+        // Move to next phase
+        function nextPhase() {
+            if (workout.type === 'simple') {
+                if (workout.phase === 'work') {
+                    workout.phase = 'rest';
+                    timerValue = workout.restDuration;
+                } else if (workout.phase === 'rest') {
+                    if (workout.currentRound < workout.totalRounds) {
+                        workout.currentRound++;
+                        workout.phase = 'work';
+                        timerValue = workout.workDuration;
+                    } else {
+                        stopWorkout();
+                        return;
+                    }
+                }
+            } else if (workout.type === 'sets') {
+                if (workout.phase === 'work') {
+                    workout.phase = 'rest';
+                    timerValue = workout.restDuration;
+                } else if (workout.phase === 'rest') {
+                    if (workout.currentExercise < workout.totalExercises) {
+                        workout.currentExercise++;
+                        workout.phase = 'work';
+                        timerValue = workout.workDuration;
+                    } else {
+                        if (workout.currentSet < workout.totalSets) {
+                            workout.currentSet++;
+                            workout.currentExercise = 1;
+                            workout.phase = 'break';
+                            timerValue = workout.breakDuration;
+                        } else {
+                            stopWorkout();
+                            return;
+                        }
+                    }
+                } else if (workout.phase === 'break') {
+                    workout.phase = 'work';
+                    timerValue = workout.workDuration;
+                }
+            } else if (workout.type === 'rounds') {
+                if (workout.phase === 'work') {
+                    workout.phase = 'rest';
+                    timerValue = workout.restDuration;
+                } else if (workout.phase === 'rest') {
+                    if (workout.currentExercise < workout.totalExercises) {
+                        workout.currentExercise++;
+                        workout.phase = 'work';
+                        timerValue = workout.workDuration;
+                    } else {
+                        if (workout.currentSet < workout.totalSets) {
+                            workout.currentSet++;
+                            workout.currentExercise = 1;
+                            workout.phase = 'work';
+                            timerValue = workout.workDuration;
+                        } else {
+                            if (workout.currentRound < workout.totalRounds) {
+                                workout.currentRound++;
+                                workout.currentSet = 1;
+                                workout.currentExercise = 1;
+                                workout.phase = 'break';
+                                timerValue = workout.breakDuration;
+                            } else {
+                                stopWorkout();
+                                return;
+                            }
+                        }
+                    }
+                } else if (workout.phase === 'break') {
+                    workout.phase = 'work';
+                    timerValue = workout.workDuration;
+                }
+            }
+            
+            // Update status badge with new phase
+            updatePhaseStatus();
+            updateStructureInfo();
+            updateTimerDisplay();
+        }
+        
+        // Stop workout
+        function stopWorkout() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            timerRunning = false;
+            setStatus('standby');
+            structureInfo.innerHTML = '<span class="progress-item">Complete!</span>';
+        }
+        
+        // Hide all panels
+        function hideAllPanels() {
+            roundFields.style.display = 'none';
+            setFields.style.display = 'none';
+            simpleFields.style.display = 'none';
+            emptyState.classList.remove('hidden');
+        }
+        
+        // Initialize
+        hideAllPanels();
+        setStatus('standby');
+        updateTimerDisplay();
+        updateStructureInfo();
+        
+        // Dropdown change
+        dropdown.addEventListener('change', function() {
+            emptyState.classList.add('hidden');
+            roundFields.style.display = 'none';
+            setFields.style.display = 'none';
+            simpleFields.style.display = 'none';
+            
+            clearAllFields();
+            
+            if (dropdown.value === 'rounds') roundFields.style.display = 'block';
+            else if (dropdown.value === 'sets') setFields.style.display = 'block';
+            else if (dropdown.value === 'simple') simpleFields.style.display = 'block';
+            
+            workout.type = '';
+            timerValue = 0;
+            pausedTime = null;
+            updateTimerDisplay();
+            setStatus('standby');
+            structureInfo.innerHTML = '<span class="progress-item">Ready</span>';
+            errorMsg.classList.remove('visible');
+        });
+        
+        // Validate fields
+        function validateFields(container) {
+            const inputs = container.querySelectorAll('input');
+            let isValid = true;
+            
+            inputs.forEach(input => {
+                if (input.value === '') {
+                    input.classList.add('error');
+                    isValid = false;
+                } else {
+                    input.classList.remove('error');
+                }
+            });
+            
+            return isValid;
+        }
+        
+        // Start button
+        startBtn.addEventListener('click', function() {
+            if (!dropdown.value) {
+                emptyState.style.border = '1px solid #B07BAC';
+                emptyState.style.background = 'rgba(176, 123, 172, 0.1)';
+                setTimeout(() => {
+                    emptyState.style.border = '1px dashed rgba(176, 123, 172, 0.3)';
+                    emptyState.style.background = 'rgba(255, 255, 255, 0.2)';
+                }, 500);
+                return;
+            }
+            
+            let currentPanel;
+            if (dropdown.value === 'rounds') currentPanel = roundFields;
+            else if (dropdown.value === 'sets') currentPanel = setFields;
+            else currentPanel = simpleFields;
+            
+            if (validateFields(currentPanel)) {
+                errorMsg.classList.remove('visible');
+                
+                if (!timerRunning) {
+                    if (pausedTime !== null) {
+                        timerValue = pausedTime;
+                        pausedTime = null;
+                    } else {
+                        loadWorkoutFromFields();
+                    }
+                    
+                    timerRunning = true;
+                    setStatus('running');
+                    
+                    if (timerInterval) clearInterval(timerInterval);
+                    timerInterval = setInterval(() => {
+                        timerValue -= 0.01;
+                        
+                        if (timerValue <= 0) {
+                            nextPhase();
+                        }
+                        
+                        updateTimerDisplay();
+                    }, 10);
+                }
+            } else {
+                errorMsg.classList.add('visible');
+            }
+        });
+        
+        // Pause button
+        pauseBtn.addEventListener('click', function() {
+            if (timerRunning) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                timerRunning = false;
+                pausedTime = timerValue;
+                setStatus('paused');
+            }
+        });
+        
+        // Reset button
+        resetBtn.addEventListener('click', function() {
+            if (!dropdown.value) return;
+            
+            if (timerRunning) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                timerRunning = false;
+            }
+            
+            loadWorkoutFromFields();
+            pausedTime = null;
+            setStatus('reset');
+            
+            setTimeout(() => {
+                if (!timerRunning) setStatus('standby');
+            }, 1000);
+        });
+        
+        // Input validation
+        document.querySelectorAll('input[type="text"]').forEach(input => {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+                if (this.value.length > 2) {
+                    this.value = this.value.slice(0, 2);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
