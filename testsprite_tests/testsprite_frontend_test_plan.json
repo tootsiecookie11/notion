@@ -1,0 +1,840 @@
+[
+  {
+    "id": "TC001",
+    "title": "Start stopwatch and verify it counts up",
+    "description": "Verifies the stopwatch can be started from zero and visibly counts up.",
+    "category": "Stopwatch Mode",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click Segmented Control \"Stopwatch\" tab"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"00:00:00\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start\" button to begin timing"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"00:00:01\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"00:00:02\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Pause stopwatch and verify time freezes",
+    "description": "Verifies pausing the stopwatch freezes the displayed time.",
+    "category": "Stopwatch Mode",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click Segmented Control \"Stopwatch\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start\" button to begin timing"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"00:00:01\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Pause\" button to pause timing"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"00:00:01\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"00:00:01\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Resume after pause and verify counting continues",
+    "description": "Verifies the stopwatch resumes counting after being paused.",
+    "category": "Stopwatch Mode",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click Segmented Control \"Stopwatch\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start\" button to begin timing"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"00:00:01\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Pause\" button to pause timing"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start\" button to begin timing"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"00:00:02\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"00:00:03\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Stop/reset returns stopwatch to zero",
+    "description": "Verifies the stop control resets the stopwatch display back to 00:00:00.",
+    "category": "Stopwatch Mode",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click Segmented Control \"Stopwatch\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start\" button to begin timing"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"00:00:01\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Stop\" button to reset timing"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"00:00:00\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"00:00:00\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Pause before start does not begin timing",
+    "description": "Verifies clicking Pause before starting does not start the stopwatch and the time remains at zero.",
+    "category": "Stopwatch Mode",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click Segmented Control \"Stopwatch\" tab"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"00:00:00\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Pause\" button to pause timing"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"00:00:00\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Stop\" button to reset timing"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"00:00:00\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Multiple rapid start and pause clicks keep UI stable",
+    "description": "Verifies the stopwatch remains usable and shows a valid time when Start/Pause are clicked repeatedly.",
+    "category": "Stopwatch Mode",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click Segmented Control \"Stopwatch\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start\" button to begin timing"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Pause\" button to pause timing"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start\" button to begin timing"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Pause\" button to pause timing"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Stop\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Start\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Stop while paused resets to zero",
+    "description": "Verifies stopping from a paused state resets the stopwatch to 00:00:00.",
+    "category": "Stopwatch Mode",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click Segmented Control \"Stopwatch\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start\" button to begin timing"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"00:00:01\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Pause\" button to pause timing"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Stop\" button to reset timing"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"00:00:00\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Run a preset workout and verify countdown + timeline visuals appear",
+    "description": "Verifies a user can select a preset template, start it, and see the circular countdown and workout timeline during playback.",
+    "category": "Preset Timer Mode",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click Segmented Control \"Presets\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Scroll through carousel of predefined workout templates"
+      },
+      {
+        "type": "action",
+        "description": "Click a template card to select it"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start [Template Name]\" to begin the compiled workout queue"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Circular Timer\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Workout Timeline\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Pause and resume a running preset workout",
+    "description": "Verifies Start/Pause control pauses playback and can resume playback afterwards.",
+    "category": "Preset Timer Mode",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click Segmented Control \"Presets\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Click a template card to select it"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start [Template Name]\" to begin the compiled workout queue"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start/Pause\" pill button to control playback"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Paused\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start/Pause\" pill button to control playback"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Paused\" is not visible"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Skip to the next step during a running preset workout",
+    "description": "Verifies the Skip control advances the workout timeline to the next step during playback.",
+    "category": "Preset Timer Mode",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click Segmented Control \"Presets\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Click a template card to select it"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start [Template Name]\" to begin the compiled workout queue"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Workout Timeline\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Skip\" arrow to move to the next step early"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Next\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Attempt to start without selecting a preset template",
+    "description": "Verifies the Start control does not start a workout (or shows a prompt) when no template is selected.",
+    "category": "Preset Timer Mode",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click Segmented Control \"Presets\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Click empty area of carousel (no template selected)"
+      },
+      {
+        "type": "action",
+        "description": "Click the Start control"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Select a template\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Circular Timer\" is not visible"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Switch template selection before starting and verify Start label updates",
+    "description": "Verifies selecting a different preset updates the visible Start button label to match the selected template.",
+    "category": "Preset Timer Mode",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click Segmented Control \"Presets\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Click a template card to select it"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Start\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click a different template card to select it"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Start\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Carousel browsing keeps Presets mode active and templates visible",
+    "description": "Verifies the preset carousel remains usable while scrolling and does not leave Presets mode unexpectedly.",
+    "category": "Preset Timer Mode",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click Segmented Control \"Presets\" tab"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Presets\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Scroll through carousel of predefined workout templates"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Preset templates carousel\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Scroll through carousel of predefined workout templates"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Preset templates carousel\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Autoplay audio limitation is respected: verify workout runs even if audio is absent",
+    "description": "Verifies starting a preset workout shows visual countdown/timeline even if audio cues do not play (audio playback is a known limitation and is not asserted).",
+    "category": "Preset Timer Mode",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click Segmented Control \"Presets\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Click a template card to select it"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start [Template Name]\" to begin the compiled workout queue"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Circular Timer\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Workout Timeline\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Paused\" is not visible"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Build a simple custom workout and start/pause playback",
+    "description": "Verifies a user can add exercise and rest blocks, start the workout, see the timer/timeline, and pause/resume.",
+    "category": "Custom Timer Builder Mode",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click Segmented Control \"Custom\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Click Add Exercise button"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Push-ups\" into the Name input for a given block"
+      },
+      {
+        "type": "action",
+        "description": "Type \"30\" into the Duration (seconds) for an exercise block"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start Workout\" arrow to compile the blocks into a sequence and start execution"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Circular Timer\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start/Pause\" pill button"
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Add exercise + rest + repeat group and start workout compilation",
+    "description": "Verifies the builder accepts multiple block types including a repeat group and can compile/start the sequence.",
+    "category": "Custom Timer Builder Mode",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click Segmented Control \"Custom\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Click Add Exercise button"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Jumping Jacks\" into the Name input for a given block"
+      },
+      {
+        "type": "action",
+        "description": "Type \"20\" into the Duration (seconds) for an exercise block"
+      },
+      {
+        "type": "action",
+        "description": "Click Add Rest button"
+      },
+      {
+        "type": "action",
+        "description": "Type \"10\" into the Duration (seconds) for rest"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start Workout\" arrow to compile the blocks into a sequence and start execution"
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "Invalid duration: non-numeric value is rejected or blocks start",
+    "description": "Verifies the duration field prevents non-numeric input or prevents starting until corrected.",
+    "category": "Custom Timer Builder Mode",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click Segmented Control \"Custom\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Click Add Exercise button"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Plank\" into the Name input for a given block"
+      },
+      {
+        "type": "action",
+        "description": "Type \"abc\" into the Duration (seconds) for an exercise block"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start Workout\" arrow to compile the blocks into a sequence and start execution"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"invalid\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Circular Timer\" is not visible"
+      }
+    ]
+  },
+  {
+    "id": "TC018",
+    "title": "Invalid duration: negative value is rejected or blocks start",
+    "description": "Verifies the duration field prevents negative values or prevents starting until corrected.",
+    "category": "Custom Timer Builder Mode",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click Segmented Control \"Custom\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Click Add Exercise button"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Squats\" into the Name input for a given block"
+      },
+      {
+        "type": "action",
+        "description": "Type \"-5\" into the Duration (seconds) for an exercise block"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start Workout\" arrow to compile the blocks into a sequence and start execution"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"must be\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Circular Timer\" is not visible"
+      }
+    ]
+  },
+  {
+    "id": "TC019",
+    "title": "Delete a block and confirm it no longer appears in the builder list",
+    "description": "Verifies a user can remove a block before starting and the UI updates accordingly.",
+    "category": "Custom Timer Builder Mode",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click Segmented Control \"Custom\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Click Add Exercise button"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Burpees\" into the Name input for a given block"
+      },
+      {
+        "type": "action",
+        "description": "Type \"15\" into the Duration (seconds) for an exercise block"
+      },
+      {
+        "type": "action",
+        "description": "Click \"X\" to delete a block"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Burpees\" is not visible"
+      }
+    ]
+  },
+  {
+    "id": "TC020",
+    "title": "Start workout and verify workout timeline is visible alongside the timer",
+    "description": "Verifies compilation produces the runtime view with both circular timer and a timeline of blocks.",
+    "category": "Custom Timer Builder Mode",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click Segmented Control \"Custom\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Click Add Exercise button"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Lunges\" into the Name input for a given block"
+      },
+      {
+        "type": "action",
+        "description": "Type \"25\" into the Duration (seconds) for an exercise block"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start Workout\" arrow to compile the blocks into a sequence and start execution"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Workout Timeline\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC021",
+    "title": "Pause and resume while timer is running",
+    "description": "Verifies the Start/Pause control toggles playback state during an active custom workout.",
+    "category": "Custom Timer Builder Mode",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click Segmented Control \"Custom\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Click Add Exercise button"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Mountain Climbers\" into the Name input for a given block"
+      },
+      {
+        "type": "action",
+        "description": "Type \"30\" into the Duration (seconds) for an exercise block"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start Workout\" arrow to compile the blocks into a sequence and start execution"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start/Pause\" pill button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Start\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC022",
+    "title": "Add a repeat group block and verify it appears in the builder list",
+    "description": "Verifies the repeat group can be added and is represented in the custom builder UI before starting.",
+    "category": "Custom Timer Builder Mode",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click Segmented Control \"Custom\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Click Add Repeat Group button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Repeat\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click Add Exercise button"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Sit-ups\" into the Name input for a given block"
+      },
+      {
+        "type": "action",
+        "description": "Type \"20\" into the Duration (seconds) for an exercise block"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Sit-ups\" is visible"
+      }
+    ]
+  }
+]

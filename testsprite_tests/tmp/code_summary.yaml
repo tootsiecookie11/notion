@@ -1,0 +1,73 @@
+version: "2"
+type: frontend
+tech_stack:
+  - typescript
+  - react
+  - vite
+  - css
+routes:
+  - path: /
+    file: src/App.tsx
+    auth_required: false
+    description: Main application page with segmented control for Stopwatch, Custom Timer, and Preset Timer modes
+features:
+  - name: Stopwatch Mode
+    description: A simple stopwatch that counts up from zero
+    files:
+      - src/modes/Stopwatch.tsx
+      - src/engine/useStopwatchEngine.ts
+    entry_route: /
+    user_interactions:
+      - Click Segmented Control "Stopwatch" tab
+      - Click "Start" button to begin timing
+      - Click "Pause" button to pause timing
+      - Click "Stop" button to reset timing
+    api_calls: []
+    auth_required: false
+    
+  - name: Preset Timer Mode
+    description: Users can select a pre-configured workout timer format (Tabata, EMOM, AMRAP, etc.) and run it
+    files:
+      - src/modes/PresetTimer.tsx
+      - src/engine/presets.ts
+      - src/engine/useRuntimeEngine.ts
+      - src/engine/Compiler.ts
+    entry_route: /
+    user_interactions:
+      - Click Segmented Control "Presets" tab
+      - Scroll through carousel of predefined workout templates
+      - Click a template card to select it
+      - Click "Start [Template Name]" to begin the compiled workout queue
+      - Click "Start/Pause" pill button to control playback
+      - Click "Skip" arrow to move to the next step early
+      - View Circular Timer countdown and Workout Timeline
+    api_calls: []
+    auth_required: false
+
+  - name: Custom Timer Builder Mode
+    description: Users can build their own sequence of exercise, rest, and repeat blocks
+    files:
+      - src/modes/CustomBuilder.tsx
+      - src/engine/useRuntimeEngine.ts
+      - src/engine/Compiler.ts
+    entry_route: /
+    user_interactions:
+      - Click Segmented Control "Custom" tab
+      - Click Add Exercise button
+      - Click Add Rest button
+      - Click Add Repeat Group button
+      - Type in the Name input for a given block
+      - Type in the Duration (seconds) for an exercise or rest block
+      - Click "X" to delete a block
+      - Click "Start Workout" arrow to compile the blocks into a sequence and start execution
+      - Control playback identically to Preset Timer Mode
+    api_calls: []
+    auth_required: false
+    
+known_limitations:
+  - issue: Nested block editing in CustomBuilder is disabled for this MVP phase
+    location: src/modes/CustomBuilder.tsx
+    impact: Repeat blocks render a read-only UI placeholder instead of allowing drag-and-drop hierarchy.
+  - issue: Audio cues use synthetic Web Audio beeps (ticking bomb and flatline)
+    location: src/engine/useRuntimeEngine.ts
+    impact: Requires user interaction with the document before sounds can magically play due to browser autoplay policies.
